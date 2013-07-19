@@ -1,16 +1,11 @@
 __author__ = 'Florian Tautz'
 
 import pygame
-import pygame.midi
 
 
 class Game:
     def __init__(self):
         pygame.init()
-        pygame.midi.init()
-        midi_port = pygame.midi.get_default_output_id()
-        self._midi = pygame.midi.Output(midi_port)
-        self._midi.set_instrument(56)
 
         size = self._width, self._height = 1920, 1200
         self._speed = [2, 2]
@@ -60,33 +55,6 @@ class Game:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 self.stop()
-            if event.key == pygame.K_f:
-                self._midi.note_on(72, 127) # c
-            if event.key == pygame.K_g:
-                self._midi.note_on(74, 127) # d
-            if event.key == pygame.K_h:
-                self._midi.note_on(76, 127) # e
-            if event.key == pygame.K_j:
-                self._midi.note_on(77, 127) # f
-            if event.key == pygame.K_k:
-                self._midi.note_on(79, 127) # g
-            if event.key == pygame.K_l:
-                self._midi.note_on(81, 127) # a
-        if event.type == pygame.KEYUP:
-            if event.key == pygame.K_f:
-                self._midi.note_off(72, 127) # c
-            if event.key == pygame.K_g:
-                self._midi.note_off(74, 127) # d
-            if event.key == pygame.K_h:
-                self._midi.note_off(76, 127) # e
-            if event.key == pygame.K_j:
-                self._midi.note_off(77, 127) # f
-            if event.key == pygame.K_k:
-                self._midi.note_off(79, 127) # g
-            if event.key == pygame.K_l:
-                self._midi.note_off(81, 127) # a
 
     def stop(self):
-        del self._midi
-        pygame.midi.quit()
         exit()
