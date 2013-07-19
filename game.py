@@ -2,59 +2,68 @@ __author__ = 'Florian Tautz'
 
 import pygame
 
+from camera import Camera
+from map import Map
+
 
 class Game:
     def __init__(self):
         pygame.init()
 
-        size = self._width, self._height = 1920, 1200
+        size = self._width, self._height = 1024, 768
         self._speed = [2, 2]
 
-        self._screen = pygame.display.set_mode(size, pygame.FULLSCREEN|
-                                                     pygame.DOUBLEBUF|
-                                                     pygame.HWSURFACE)
-        self._ball = pygame.image.load("ball.png")
-        self._ball_rect = self._ball.get_rect()
+        self._screen = pygame.display.set_mode(size, pygame.DOUBLEBUF)# |
+                                                     #pygame.FULLSCREEN |
+                                                     #pygame.HWSURFACE)
 
-        self._last_update = 0
+        self._camera = Camera(size)
+        self._map = Map('default')
+        cx, cy = self._map.get_center()
+        self._camera.center_on(cx, cy)
 
     def run(self):
-        while True:
+        self._last_update = 0
+
+        self._run = True
+        while self._run:
             for event in pygame.event.get():
-                self.handle_event(event)
+                self._handle_event(event)
 
-            self.update(pygame.time.get_ticks())
-            self.draw()
+            self._update(pygame.time.get_ticks())
+            self._draw()
 
-    def update(self, game_time):
+    def _update(self, game_time):
         time_passed = game_time - self._last_update
         if time_passed < 10:
             return
+
+        delta = 0.25 * time_passed
+
+        pressed_keys = pygame.key.get_pressed()
+        if pressed_keys[pygame.K_w]:
+            self._camera.move(0, -delta)
+        if pressed_keys[pygame.K_s]:
+            self._camera.move(0, delta)
+        if pressed_keys[pygame.K_a]:
+            self._camera.move(delta, 0)
+        if pressed_keys[pygame.K_d]:
+            self._camera.move(-delta, 0)
+
         self._last_update = game_time
 
-        v = 0.2
-        dx = self._speed[0] * (time_passed / (1/v))
-        dy = self._speed[1] * (time_passed / (1/v))
-
-        self._ball_rect = self._ball_rect.move(dx, dy)
-
-        # keep ball in bounds
-        if self._ball_rect.left < 0 or self._ball_rect.right > self._width:
-            self._speed[0] *= -1
-        if self._ball_rect.top < 0 or self._ball_rect.bottom > self._height:
-            self._speed[1] *= -1
-
-    def draw(self):
-        self._screen.fill((255, 255, 255))
-        self._screen.blit(self._ball, self._ball_rect)
+    def _draw(self):
+        self._screen.fill((0, 0, 0)) # clear black
+        self._map.draw(self._screen, self._camera.get_view_rect())
         pygame.display.flip()
 
-    def handle_event(self, event):
+    def _handle_event(self, event):
         if event.type == pygame.QUIT:
             self.stop()
+
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 self.stop()
 
     def stop(self):
-        exit()
+        self._run = False
