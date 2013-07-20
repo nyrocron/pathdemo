@@ -19,40 +19,37 @@ class Map:
             self.load(map_name)
 
     def load(self, map_name):
-        self.width = None
-        self.Height = None
+        self.tiles_x = None
+        self.tiles_y = None
         self._tiles = []
 
         fh = open('content/maps/' + map_name + '.map', 'r')
         for line in fh:
             items = [int(x) for x in line.split()]
-            if self.width is None:
-                self.width = len(items)
+            if self.tiles_x is None:
+                self.tiles_x = len(items)
             else:
-                if self.width != len(items):
+                if self.tiles_x != len(items):
                     raise MapError("line width does not match first line")
             self._tiles.append(items)
         fh.close()
 
-        self.height = len(self._tiles)
+        self.tiles_y = len(self._tiles)
 
-        self.rect = Rect(0, 0, self.width * Map._tile_size,
-                               self.height * Map._tile_size)
+        self.size = Rect(0, 0, self.tiles_x * Map._tile_size,
+                               self.tiles_y * Map._tile_size)
 
-    def draw(self, surface, view_rect):
-        """Draw part of the map
-
-        :param surface: the surface to draw to
-        :param view_rect: the part of the map to draw (x, y, width, height)
-        """
-
-        # TODO: clipping
-        for y in range(self.height):
-            for x in range(self.width):
+    def draw(self, surface, view_rect, to_screen):
+        tile_startx = max(0, view_rect.x // Map._tile_size)
+        tile_starty = max(0, view_rect.y // Map._tile_size)
+        tiles_x = min(self.tiles_x, view_rect.width // Map._tile_size)
+        tiles_y = min(self.tiles_y, view_rect.height // Map._tile_size)
+        for y in range(tile_starty, tile_starty + tiles_y):
+            for x in range(tile_startx, tile_startx + tiles_x):
                 src_rect = self._get_tex_rect(self._get_tile(x, y))
-                dst_rect = (view_rect[0] + x * self._tile_size,
-                            view_rect[1] + y * self._tile_size,
-                            self._tile_size, self._tile_size)
+                dst_rect = Rect(to_screen(x * Map._tile_size,
+                                          y * Map._tile_size),
+                                (Map._tile_size, Map._tile_size))
                 surface.blit(self._texmap, dst_rect, src_rect)
 
     def _get_tile(self, x, y):

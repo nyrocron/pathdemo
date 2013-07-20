@@ -1,6 +1,6 @@
 __author__ = 'Florian Tautz'
 
-from pygame import image, Rect
+from pygame import image
 
 
 class Renderer:
@@ -21,12 +21,19 @@ class Renderer:
     def texture_size(self, tex_id):
         return self._textures[tex_id].size
 
+    def draw_map(self, map_):
+        map_.draw(self._surface, self._cam.view_rect,
+                  self._cam.point_to_screen)
+
+    def _draw_map_tile(self, tile):
+        pass
+
     def draw_objects(self, objs):
         for obj in objs:
             self._draw_object(obj)
 
     def _draw_object(self, obj):
-        dst_rect = Rect(self._cam.get_offset(), obj.size)
+        dst_rect = self._cam.rect_to_screen(obj.bbox)
         self._surface.blit(self._get_tex(obj.id), dst_rect)
 
     def _get_tex(self, obj_id):

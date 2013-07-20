@@ -8,8 +8,6 @@ class TreeError(Exception):
 
 
 class QuadtreeNode:
-    MAX_ITEMS = 6
-
     def __init__(self, parent, bbox):
         if (not self._is_power2(bbox.width) or
             not self._is_power2(bbox.height)):
@@ -77,9 +75,9 @@ class QuadtreeNode:
     def move_to(self, obj, new_bbox):
         if not self._bb.contains(obj.bbox):
             return False
-        if self._bb.contains(obj.bbox) and obj in self._data:
+        if obj in self._data:
             self._data.remove(obj)
-            self._purge_empty_nodes()
+            #self._purge_empty_nodes()
             obj.bbox = new_bbox
             self.insert_up(obj)
             return True
@@ -147,7 +145,7 @@ class QuadtreeNode:
 
 class Quadtree(QuadtreeNode):
     def __init__(self, bbox):
-        super(Quadtree, self).__init__(None, bbox)
+        QuadtreeNode.__init__(self, None, bbox)
 
 
 class ObjectManagementError(Exception):

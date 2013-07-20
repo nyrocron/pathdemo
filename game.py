@@ -4,7 +4,7 @@ import pygame
 from pygame import Rect
 
 from camera import Camera
-from rendering import Renderer, Texture
+from rendering import Renderer
 from map import Map
 from objects.management import ObjectManager
 from objects.gameobjects import Unit
@@ -26,7 +26,7 @@ class Game:
 
         self._renderer = Renderer(self._screen, self._camera)
 
-        self._objects = ObjectManager(self._map.rect)
+        self._objects = ObjectManager(self._map.size)
 
         unit_tex = self._renderer.load_texture('character.png')
 
@@ -71,16 +71,17 @@ class Game:
             self._objects.move_object(self._player_character, 0, -delta)
         if pressed_keys[pygame.K_DOWN]:
             self._objects.move_object(self._player_character, 0, delta)
+        if pressed_keys[pygame.K_LEFT]:
+            self._objects.move_object(self._player_character, -delta, 0)
+        if pressed_keys[pygame.K_RIGHT]:
+            self._objects.move_object(self._player_character, delta, 0)
 
         self._last_update = game_time
 
     def _draw(self):
         self._screen.fill((0, 0, 0)) # clear black
-        view_rect = self._camera.rect
-        #self._map.draw(self._screen, view_rect)
-        objs = self._objects.query(view_rect)
-        # if len(objs) == 0:
-        #     raise Exception("no objects found")
+        self._renderer.draw_map(self._map)
+        objs = self._objects.query(self._camera.view_rect)
         self._renderer.draw_objects(objs)
         pygame.display.flip()
 
