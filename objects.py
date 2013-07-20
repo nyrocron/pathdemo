@@ -110,6 +110,7 @@ class QuadtreeNode:
             return False
         if self._bb.contains_rect(obj.bbox) and obj in self._data:
             self._data.remove(obj)
+            self._purge_empty_nodes()
             obj.bbox = new_bbox
             self.insert_up(obj)
             return True
@@ -166,6 +167,23 @@ class QuadtreeNode:
         self._has_children = True
         return True
     
+    def _has_data(self):
+        return len(self._data) > 0
+    
+    def _purge_empty_nodes(self):
+        if self._has_data():
+            return
+        
+        if self._has_children:
+            for child in self._childs:
+                if child._has_children or child._has_data():
+                    return
+        
+        self._childs = [None] * 4
+        self._has_children = False
+        if self.parent is not None:
+            self.parent._purge_empty_nodes()
+        
     def _is_power2(self, n):
         return ((n & (n - 1)) == 0) and n > 0
 
