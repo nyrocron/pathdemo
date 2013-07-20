@@ -11,7 +11,7 @@ class Map:
     _tile_size = 16
 
     def __init__(self, map_name=None):
-        self._texmap = image.load('texmap.png')
+        self._texmap = image.load('content/texmap.png')
         self._texmap_tiles_x = 16
         self._texmap_tiles_y = 16
         self._tiles = None
@@ -23,7 +23,7 @@ class Map:
         self.Height = None
         self._tiles = []
 
-        fh = open('maps/' + map_name + '.map', 'r')
+        fh = open('content/maps/' + map_name + '.map', 'r')
         for line in fh:
             items = [int(x) for x in line.split()]
             if self.width is None:
