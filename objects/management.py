@@ -9,16 +9,16 @@ class TreeError(Exception):
 
 class QuadtreeNode:
     MAX_ITEMS = 6
-    
+
     def __init__(self, parent, bbox):
         if (not self._is_power2(bbox.width) or
             not self._is_power2(bbox.height)):
             raise TreeError("node dimensions have to be power of two,"
                             " bbox given was " + str(bbox))
-        
+
         self.parent = parent
         self._bb = bbox
-        
+
         self._data = set()
         self._has_children = False
         self._childs = [None] * 4
@@ -26,7 +26,7 @@ class QuadtreeNode:
     def insert(self, obj):
         if not self._bb.contains_rect(obj.bbox):
             return False
-        
+
         if not self._has_children:
             self._subdivide()
 
@@ -34,7 +34,7 @@ class QuadtreeNode:
             for child in self._childs:
                 if child.insert(obj):
                     return True
-        
+
         self._data.add(obj)
         return True
 
@@ -42,38 +42,38 @@ class QuadtreeNode:
         result = set()
         if area is not None and not self._bb.contains_rect(area):
             return result
-        
+
         if len(self._data) > 0:
             for obj in self._data:
                 if area is None or area.contains_rect(obj.bbox):
                     result.add(obj)
-        
+
         if not self._has_children:
             return result
-        
+
         for child in self._childs:
             result.update(child.query(area))
-        
+
         return result
-    
+
     def query_intersect(self, area):
         result = set()
         if not self._bb.intersects(area):
             return result
-        
+
         if len(self._data) > 0:
             for obj in self._data:
                 if obj.bbox.intersects(area):
                     result.add(obj)
-        
+
         if not self._has_children:
             return result
-        
+
         for child in self._childs:
             result.update(child.query_intersect(area))
-        
-        return result    
-    
+
+        return result
+
     def move(self, obj, new_bbox):
         if not self._bb.contains_rect(obj.bbox):
             return False
@@ -93,66 +93,62 @@ class QuadtreeNode:
             self.insert(obj)
         else:
             self.parent.insert_up(obj)
-    
+
     def print_tree(self, indent=0):
         print(' ' * indent + str(self._data))
-        
+
         if not self._has_children:
             return
-        
+
         for child in self._childs:
             child.print_tree(indent + 2)
-    
+
     def _subdivide(self):
         split_width = self._bb.width // 2
         split_height = self._bb.height // 2
         split_x = self._bb.x + split_width
         split_y = self._bb.y + split_height
-        
+
         if split_width == 0 or split_height == 0:
             return False
-        
-        self._childs[0] = QuadtreeNode(self,
-                                       Rectangle(self._bb.x,
-                                                 self._bb.y,
-                                                 split_width,
-                                                 split_height))
-        self._childs[1] = QuadtreeNode(self,
-                                       Rectangle(split_x,
-                                                 self._bb.y,
-                                                 split_width,
-                                                 split_height))
-        self._childs[2] = QuadtreeNode(self,
-                                       Rectangle(self._bb.x,
-                                                 split_y,
-                                                 split_width,
-                                                 split_height))
-        self._childs[3] = QuadtreeNode(self,
-                                       Rectangle(split_x,
-                                                 split_y,
-                                                 split_width,
-                                                 split_height))
+
+        self._childs[0] = QuadtreeNode(self, Rectangle(self._bb.x,
+                                                       self._bb.y,
+                                                       split_width,
+                                                       split_height))
+        self._childs[1] = QuadtreeNode(self, Rectangle(split_x,
+                                                       self._bb.y,
+                                                       split_width,
+                                                       split_height))
+        self._childs[2] = QuadtreeNode(self, Rectangle(self._bb.x,
+                                                       split_y,
+                                                       split_width,
+                                                       split_height))
+        self._childs[3] = QuadtreeNode(self, Rectangle(split_x,
+                                                       split_y,
+                                                       split_width,
+                                                       split_height))
 
         self._has_children = True
         return True
-    
+
     def _has_data(self):
         return len(self._data) > 0
-    
+
     def _purge_empty_nodes(self):
         if self._has_data():
             return
-        
+
         if self._has_children:
             for child in self._childs:
                 if child._has_children or child._has_data():
                     return
-        
+
         self._childs = [None] * 4
         self._has_children = False
         if self.parent is not None:
             self.parent._purge_empty_nodes()
-        
+
     def _is_power2(self, n):
         return ((n & (n - 1)) == 0) and n > 0
 
@@ -165,10 +161,16 @@ class Quadtree(QuadtreeNode):
 class ObjectManager:
     def __init__(self, bbox):
         self._quadtree = Quadtree(bbox)
+        self._id_to_obj = {}
 
     def create(self, which, location):
         obj = which(location)
+        self._id_to_obj[obj.id] = obj
         self._quadtree.insert(obj)
+        return obj
 
     def get_objects_in_area(self, area):
         return self._quadtree.query_intersect(area)
+
+    def get_object_by_id(self, obj_id):
+        return self._id_to_obj[obj_id]

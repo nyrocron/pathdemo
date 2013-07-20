@@ -1,8 +1,5 @@
 __author__ = 'flori_000'
 
-from geometry import Rectangle
-from objects.management import Quadtree
-
 
 class GameObject:
     _id_counter = 0
@@ -31,18 +28,6 @@ class GameObject:
         GameObject._id_counter += 1
         return GameObject._id_counter
 
-if __name__ == '__main__':
-    q = Quadtree(Rectangle(0, 0, 16, 16))
 
-    objs = [GameObject(Rectangle(0, 0, 1, 1)),
-            GameObject(Rectangle(1, 1, 1, 1)),
-            GameObject(Rectangle(2, 4, 1, 1)),
-            GameObject(Rectangle(4, 2, 1, 1)),
-            GameObject(Rectangle(1, 1, 8, 8)),
-            GameObject(Rectangle(3, 8, 2, 4))]
-
-    for obj in objs:
-        q.insert(obj)
-
-    q.print_tree()
-    print(q.query_intersect(Rectangle(1.1, 1.1, 4, 4)))
+class Unit(GameObject):
+    pass
