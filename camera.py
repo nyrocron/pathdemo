@@ -9,8 +9,8 @@ class Camera:
         self._pos_y = self._height / 2
 
     def center_on(self, x, y):
-        self._pos_x = x + self._width / 2
-        self._pos_y = y + self._height / 2
+        self._pos_x = self._width / 2 - x
+        self._pos_y = self._height / 2 - y
 
     def move(self, x, y):
         self._pos_x += x

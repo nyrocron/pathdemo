@@ -23,7 +23,7 @@ class Map:
         self.Height = None
         self._tiles = []
 
-        fh = open(map_name + '.map', 'r')
+        fh = open('maps/' + map_name + '.map', 'r')
         for line in fh:
             items = [int(x) for x in line.split()]
             if self.width is None:
@@ -47,8 +47,8 @@ class Map:
         :param surface: the surface to draw to
         :param view_rect: the part of the map to draw (x, y, width, height)
         """
-        # TODO: culling
 
+        # TODO: clipping
         for y in range(self.height):
             for x in range(self.width):
                 src_rect = self._get_tex_rect(self._get_tile(x, y))
