@@ -38,9 +38,10 @@ class Game:
         if time_passed < 10:
             return
 
-        delta = 0.25 * time_passed
-
         pressed_keys = pygame.key.get_pressed()
+
+        # camera movement
+        delta = 0.25 * time_passed
         if pressed_keys[pygame.K_w]:
             self._camera.move(0, -delta)
         if pressed_keys[pygame.K_s]:
