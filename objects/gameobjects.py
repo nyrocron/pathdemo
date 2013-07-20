@@ -23,6 +23,10 @@ class GameObject:
     def __eq__(self, other):
         return self.id == other.id
 
+    def __getattr__(self, item):
+        if item == 'size':
+            return self.bbox.width, self.bbox.height
+
     @staticmethod
     def _new_id():
         GameObject._id_counter += 1

@@ -1,26 +1,40 @@
 __author__ = 'Florian Tautz'
 
 import pygame
+from pygame import Rect
 
 from camera import Camera
+from rendering import Renderer, Texture
 from map import Map
+from objects.management import ObjectManager
+from objects.gameobjects import Unit
 
 
 class Game:
     def __init__(self):
         pygame.init()
 
-        size = self._width, self._height = 1024, 768
-        self._speed = [2, 2]
+        screen_size = self._width, self._height = 1024, 768
+        self._screen = pygame.display.set_mode(screen_size,
+                                               pygame.DOUBLEBUF)# |
+                                               #pygame.FULLSCREEN |
+                                               #pygame.HWSURFACE)
 
-        self._screen = pygame.display.set_mode(size, pygame.DOUBLEBUF)# |
-                                                     #pygame.FULLSCREEN |
-                                                     #pygame.HWSURFACE)
-
-        self._camera = Camera(size)
         self._map = Map('default')
-        cx, cy = self._map.get_center()
-        self._camera.center_on(cx, cy)
+
+        self._camera = Camera(screen_size)
+
+        self._renderer = Renderer(self._screen, self._camera)
+
+        self._objects = ObjectManager(self._map.rect)
+
+        unit_tex = self._renderer.load_texture('character.png')
+
+        char_pos = (1, 1)
+        char_rect = Rect(char_pos, self._renderer.texture_size(unit_tex))
+        self._player_character = self._objects.create(Unit, char_rect)
+
+        self._renderer.assign_texture(self._player_character, unit_tex)
 
     def run(self):
         self._last_update = 0
@@ -55,8 +69,12 @@ class Game:
 
     def _draw(self):
         self._screen.fill((0, 0, 0)) # clear black
-        self._map.draw(self._screen, self._camera.get_view_rect())
-        self._draw_objects(self._screen, self._camera.get_view_rect())
+        view_rect = self._camera.view_rect
+        self._map.draw(self._screen, view_rect)
+        objs = self._objects.query(view_rect)
+        if len(objs) == 0:
+            raise Exception("no objects found")
+        self._renderer.draw_objects(objs)
         pygame.display.flip()
 
     def _draw_objects(self, surface, area):

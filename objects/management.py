@@ -1,6 +1,6 @@
 __author__ = 'Florian Tautz'
 
-from geometry import Rectangle
+from pygame import Rect
 
 
 class TreeError(Exception):
@@ -24,7 +24,7 @@ class QuadtreeNode:
         self._childs = [None] * 4
 
     def insert(self, obj):
-        if not self._bb.contains_rect(obj.bbox):
+        if not self._bb.contains(obj.bbox):
             return False
 
         if not self._has_children:
@@ -58,12 +58,12 @@ class QuadtreeNode:
 
     def query_intersect(self, area):
         result = set()
-        if not self._bb.intersects(area):
+        if not self._bb.colliderect(area):
             return result
 
         if len(self._data) > 0:
             for obj in self._data:
-                if obj.bbox.intersects(area):
+                if obj.bbox.colliderect(area):
                     result.add(obj)
 
         if not self._has_children:
@@ -112,22 +112,14 @@ class QuadtreeNode:
         if split_width == 0 or split_height == 0:
             return False
 
-        self._childs[0] = QuadtreeNode(self, Rectangle(self._bb.x,
-                                                       self._bb.y,
-                                                       split_width,
-                                                       split_height))
-        self._childs[1] = QuadtreeNode(self, Rectangle(split_x,
-                                                       self._bb.y,
-                                                       split_width,
-                                                       split_height))
-        self._childs[2] = QuadtreeNode(self, Rectangle(self._bb.x,
-                                                       split_y,
-                                                       split_width,
-                                                       split_height))
-        self._childs[3] = QuadtreeNode(self, Rectangle(split_x,
-                                                       split_y,
-                                                       split_width,
-                                                       split_height))
+        self._childs[0] = QuadtreeNode(self, Rect(self._bb.x, self._bb.y,
+                                                  split_width, split_height))
+        self._childs[1] = QuadtreeNode(self, Rect(split_x, self._bb.y,
+                                                  split_width, split_height))
+        self._childs[2] = QuadtreeNode(self, Rect(self._bb.x, split_y,
+                                                  split_width, split_height))
+        self._childs[3] = QuadtreeNode(self, Rect(split_x, split_y,
+                                                  split_width, split_height))
 
         self._has_children = True
         return True
@@ -160,7 +152,8 @@ class Quadtree(QuadtreeNode):
 
 class ObjectManager:
     def __init__(self, bbox):
-        self._quadtree = Quadtree(bbox)
+        self._bb = bbox
+        self._quadtree = Quadtree(self._bb)
         self._id_to_obj = {}
 
     def create(self, which, location):
@@ -169,7 +162,9 @@ class ObjectManager:
         self._quadtree.insert(obj)
         return obj
 
-    def get_objects_in_area(self, area):
+    def query(self, area=None):
+        if area is None:
+            area = self._bb
         return self._quadtree.query_intersect(area)
 
     def get_object_by_id(self, obj_id):

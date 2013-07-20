@@ -1,6 +1,6 @@
 __author__ = 'Florian Tautz'
 
-from pygame import image
+from pygame import image, Rect
 
 
 class MapError(Exception):
@@ -36,10 +36,8 @@ class Map:
 
         self.height = len(self._tiles)
 
-    def get_center(self):
-        x = self.width / 2 * self._tile_size
-        y = self.height / 2 * self._tile_size
-        return x, y
+        self.rect = Rect(0, 0, self.width * Map._tile_size,
+                               self.height * Map._tile_size)
 
     def draw(self, surface, view_rect):
         """Draw part of the map
