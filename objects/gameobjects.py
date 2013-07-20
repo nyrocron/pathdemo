@@ -1,4 +1,4 @@
-__author__ = 'flori_000'
+__author__ = 'Florian Tautz'
 
 
 class GameObject:
