@@ -42,8 +42,10 @@ class Map:
     def draw(self, surface, view_rect, to_screen):
         tile_startx = max(0, view_rect.x // Map._tile_size)
         tile_starty = max(0, view_rect.y // Map._tile_size)
-        tiles_x = min(self.tiles_x, view_rect.width // Map._tile_size)
-        tiles_y = min(self.tiles_y, view_rect.height // Map._tile_size)
+        tiles_x = min(self.tiles_x - tile_startx,
+                      view_rect.width // Map._tile_size)
+        tiles_y = min(self.tiles_y - tile_starty,
+                      view_rect.height // Map._tile_size)
         for y in range(tile_starty, tile_starty + tiles_y):
             for x in range(tile_startx, tile_startx + tiles_x):
                 src_rect = self._get_tex_rect(self._get_tile(x, y))
