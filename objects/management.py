@@ -1,38 +1,7 @@
 __author__ = 'Florian Tautz'
 
+from geometry import Rectangle
 
-class Rectangle:
-    def __init__(self, x, y, width, height):
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
-        self.right = self.x + self.width
-        self.bottom = self.y + self.height
-
-    def __str__(self):
-        return ('Rectangle(' + str(self.x) + ', ' + str(self.y) + ', ' +
-                str(self.width) + ', ' + str(self.height) + ')')
-
-    def get_center(self):
-        return self.x + self.width // 2, self.y + self.height // 2
-
-    def contains_point(self, x, y):
-        return (x >= self.x and y >= self.y and
-                x <= self.x + self.width and
-                y <= self.y + self.height)
-
-    def contains_rect(self, other):
-        return (other.x >= self.x and other.right <= self.right and
-                other.y >= self.y and other.bottom <= self.bottom)
-    
-    def intersects(self, other):
-        separate = (self.x + self.width < other.x or
-                    self.y + self.height < other.y or
-                    self.x > other.x + other.width or
-                    self.y > other.y + other.height)
-        return not separate
-    
 
 class TreeError(Exception):
     pass
@@ -191,47 +160,3 @@ class QuadtreeNode:
 class Quadtree(QuadtreeNode):
     def __init__(self, bbox):
         super(Quadtree, self).__init__(None, bbox)
-
-    
-class GameObject:
-    _id_counter = 0
-    
-    def __init__(self, bbox, obj_id=None):
-        self.bbox = bbox
-        if obj_id is None:
-            self.id = GameObject._new_id()
-        else:
-            self.id = obj_id
-    
-    def __repr__(self):
-        return '<' + str(self) + '>'
-    
-    def __str__(self):
-        return ('GameObject(' + str(self.bbox) + ', id=' + str(self.id) + ')')
-    
-    def __hash__(self):
-        return self.id
-    
-    def __eq__(self, other):
-        return self.id == other.id
-    
-    @staticmethod
-    def _new_id():
-        GameObject._id_counter += 1
-        return GameObject._id_counter
-
-if __name__ == '__main__':
-    q = Quadtree(Rectangle(0, 0, 16, 16))
-    
-    objs = [GameObject(Rectangle(0, 0, 1, 1)),
-            GameObject(Rectangle(1, 1, 1, 1)),
-            GameObject(Rectangle(2, 4, 1, 1)),
-            GameObject(Rectangle(4, 2, 1, 1)),
-            GameObject(Rectangle(1, 1, 8, 8)),
-            GameObject(Rectangle(3, 8, 2, 4))]
-    
-    for obj in objs:
-        q.insert(obj)
-    
-    q.print_tree()
-    print(q.query_intersect(Rectangle(1.1, 1.1, 4, 4)))
