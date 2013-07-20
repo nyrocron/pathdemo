@@ -157,6 +157,7 @@ class ObjectManager:
         self._bb = bbox
         self._quadtree = Quadtree(self._bb)
         self._id_to_obj = {}
+        self.selection = set()
 
     def create(self, which, location):
         obj = which(location)
@@ -179,3 +180,13 @@ class ObjectManager:
             return False
         self._quadtree.move_to(obj, new_bbox)
         return True
+
+    def select(self, area):
+        new_selection = self.query(area)
+
+        for obj in self.selection.difference(new_selection):
+            obj.selected = False
+
+        self.selection = new_selection
+        for obj in self.selection:
+            obj.selected = True

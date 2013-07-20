@@ -6,6 +6,7 @@ class GameObject:
 
     def __init__(self, bbox, obj_id=None):
         self.bbox = bbox
+        self.selected = False
         if obj_id is None:
             self.id = GameObject._new_id()
         else:

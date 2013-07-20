@@ -13,5 +13,8 @@ class Camera:
     def rect_to_screen(self, rect):
         return rect.move(-self.view_rect.x, -self.view_rect.y)
 
+    def rect_to_map(self, rect):
+        return rect.move(self.view_rect.x, self.view_rect.y)
+
     def point_to_screen(self, x, y):
         return x - self.view_rect.x, y - self.view_rect.y
