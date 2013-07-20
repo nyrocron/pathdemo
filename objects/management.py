@@ -160,3 +160,15 @@ class QuadtreeNode:
 class Quadtree(QuadtreeNode):
     def __init__(self, bbox):
         super(Quadtree, self).__init__(None, bbox)
+
+
+class ObjectManager:
+    def __init__(self, bbox):
+        self._quadtree = Quadtree(bbox)
+
+    def create(self, which, location):
+        obj = which(location)
+        self._quadtree.insert(obj)
+
+    def get_objects_in_area(self, area):
+        return self._quadtree.query_intersect(area)

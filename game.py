@@ -56,7 +56,11 @@ class Game:
     def _draw(self):
         self._screen.fill((0, 0, 0)) # clear black
         self._map.draw(self._screen, self._camera.get_view_rect())
+        self._draw_objects(self._screen, self._camera.get_view_rect())
         pygame.display.flip()
+
+    def _draw_objects(self, surface, area):
+        pass
 
     def _handle_event(self, event):
         if event.type == pygame.QUIT:
