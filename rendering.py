@@ -26,7 +26,7 @@ class Renderer:
             self._draw_object(obj)
 
     def _draw_object(self, obj):
-        dst_rect = Rect(self._cam.offset, obj.size)
+        dst_rect = Rect(self._cam.get_offset(), obj.size)
         self._surface.blit(self._get_tex(obj.id), dst_rect)
 
     def _get_tex(self, obj_id):

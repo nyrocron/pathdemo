@@ -74,22 +74,22 @@ class QuadtreeNode:
 
         return result
 
-    def move(self, obj, new_bbox):
-        if not self._bb.contains_rect(obj.bbox):
+    def move_to(self, obj, new_bbox):
+        if not self._bb.contains(obj.bbox):
             return False
-        if self._bb.contains_rect(obj.bbox) and obj in self._data:
+        if self._bb.contains(obj.bbox) and obj in self._data:
             self._data.remove(obj)
             self._purge_empty_nodes()
             obj.bbox = new_bbox
             self.insert_up(obj)
             return True
         for child in self._childs:
-            if child.move(obj, new_bbox):
+            if child.move_to(obj, new_bbox):
                 return True
         raise TreeError("move failed")
 
     def insert_up(self, obj):
-        if self._bb.contains_rect(obj.bbox):
+        if self._bb.contains(obj.bbox):
             self.insert(obj)
         else:
             self.parent.insert_up(obj)
@@ -150,6 +150,10 @@ class Quadtree(QuadtreeNode):
         super(Quadtree, self).__init__(None, bbox)
 
 
+class ObjectManagementError(Exception):
+    pass
+
+
 class ObjectManager:
     def __init__(self, bbox):
         self._bb = bbox
@@ -169,3 +173,11 @@ class ObjectManager:
 
     def get_object_by_id(self, obj_id):
         return self._id_to_obj[obj_id]
+
+    def move_object(self, obj_id, x, y):
+        obj = self.get_object_by_id(obj_id)
+        new_bbox = obj.bbox.move(x, y)
+        if not self._bb.contains(new_bbox):
+            return False
+        self._quadtree.move_to(obj, new_bbox)
+        return True

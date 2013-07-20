@@ -7,12 +7,8 @@ class Camera:
     def __init__(self, view_size):
         self.rect = Rect((0, 0), view_size)
 
-    def __getattr__(self, item):
-        if item == 'offset':
-            return self._pos_x, self._pos_y
-        if item == 'view_rect':
-            return Rect(self._pos_x, self._pos_y, self._width, self._height)
-
     def move(self, x, y):
-        self._pos_x += x
-        self._pos_y -= y
+        self.rect = self.rect.move(x, y)
+
+    def get_offset(self):
+        return -self.rect.x, -self.rect.y

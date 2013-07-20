@@ -54,26 +54,33 @@ class Game:
 
         pressed_keys = pygame.key.get_pressed()
 
-        # camera movement
         delta = 0.25 * time_passed
+
+        # camera movement
         if pressed_keys[pygame.K_w]:
             self._camera.move(0, -delta)
         if pressed_keys[pygame.K_s]:
             self._camera.move(0, delta)
         if pressed_keys[pygame.K_a]:
-            self._camera.move(delta, 0)
-        if pressed_keys[pygame.K_d]:
             self._camera.move(-delta, 0)
+        if pressed_keys[pygame.K_d]:
+            self._camera.move(delta, 0)
+
+        # character movement
+        if pressed_keys[pygame.K_UP]:
+            self._objects.move_object(self._player_character, 0, -delta)
+        if pressed_keys[pygame.K_DOWN]:
+            self._objects.move_object(self._player_character, 0, delta)
 
         self._last_update = game_time
 
     def _draw(self):
         self._screen.fill((0, 0, 0)) # clear black
-        view_rect = self._camera.view_rect
-        self._map.draw(self._screen, view_rect)
+        view_rect = self._camera.rect
+        #self._map.draw(self._screen, view_rect)
         objs = self._objects.query(view_rect)
-        if len(objs) == 0:
-            raise Exception("no objects found")
+        # if len(objs) == 0:
+        #     raise Exception("no objects found")
         self._renderer.draw_objects(objs)
         pygame.display.flip()
 
