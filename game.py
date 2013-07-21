@@ -19,20 +19,25 @@ class Game:
     """Manages other game modules."""
 
     def __init__(self):
+        self._run = False
+        self._last_update = 0
+
+        self._mouse_last_pos = None
+        self._mouse_drag_start = None
+        self._dragging = False
+        self._selection_rect = None
+        self._mouse_right_down = False
+
         pygame.init()
 
         screen_size = (1024, 768)
-        self._screen = pygame.display.set_mode(screen_size,
-                                               pygame.DOUBLEBUF)# |
-                                               #pygame.FULLSCREEN |
-                                               #pygame.HWSURFACE)
+        self._screen = pygame.display.set_mode(screen_size, pygame.DOUBLEBUF)
 
         self._map = Map('default')
         self._camera = Camera(screen_size)
         self._renderer = Renderer(self._screen, self._camera)
         self._objects = ObjectManager(self._map.size)
 
-        self._initialize()
         self._load()
 
     def run(self):
@@ -47,21 +52,14 @@ class Game:
             self._update(pygame.time.get_ticks())
             self._draw()
 
-    def _initialize(self):
-        self._mouse_last_pos = None
-        self._mouse_drag_start = None
-        self._dragging = False
-        self._selection_rect = None
-        self._mouse_right_down = False
-
     def _load(self):
         unit_tex = self._renderer.load_texture('character.png')
 
         char_pos = (1, 1)
         char_rect = Rect(char_pos, self._renderer.texture_size(unit_tex))
-        self._player_character = self._objects.create(Unit, char_rect)
+        player_character = self._objects.create(Unit, char_rect)
 
-        self._renderer.assign_texture(self._player_character, unit_tex)
+        self._renderer.assign_texture(player_character, unit_tex)
 
     def _update(self, gametime):
         time_passed = gametime - self._last_update
@@ -69,9 +67,7 @@ class Game:
             return
 
         self._handle_input(time_passed)
-
         self._objects.update(gametime)
-
         self._last_update = gametime
 
     def _handle_input(self, time_passed):
@@ -89,16 +85,6 @@ class Game:
         if pressed_keys[pygame.K_d]:
             self._camera.move(delta, 0)
         self._camera_moved()
-
-        # character movement
-        if pressed_keys[pygame.K_UP]:
-            self._objects.move_object(self._player_character, 0, -delta)
-        if pressed_keys[pygame.K_DOWN]:
-            self._objects.move_object(self._player_character, 0, delta)
-        if pressed_keys[pygame.K_LEFT]:
-            self._objects.move_object(self._player_character, -delta, 0)
-        if pressed_keys[pygame.K_RIGHT]:
-            self._objects.move_object(self._player_character, delta, 0)
 
         # mouse
         x, y = mouse.get_pos()
@@ -155,7 +141,7 @@ class Game:
             self._update_selection_rect(x, y)
 
     def _draw(self):
-        self._screen.fill((0, 0, 0)) # clear black
+        self._screen.fill((0, 0, 0))  # clear black
 
         self._renderer.draw_map(self._map)
 
