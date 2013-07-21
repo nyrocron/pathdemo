@@ -1,1 +1,0 @@
-C:\Python32_32\python.exe __main__.py
