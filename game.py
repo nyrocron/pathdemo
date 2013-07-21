@@ -100,7 +100,7 @@ class Game:
         self._mouse_last_pos = (x, y)
 
     def _mouse_dragged(self):
-        self._objects.select(self._camera.rect_to_map(self._selection_rect))
+        self._objects.select(self._selection_rect)
 
     def _mouse_right_clicked(self, x, y):
         map_x, map_y = self._camera.point_to_map(x, y)
