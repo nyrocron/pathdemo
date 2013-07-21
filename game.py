@@ -68,57 +68,13 @@ class Game:
         if time_passed < 10:
             return
 
-        self._handle_mouse()
-        self._handle_keyboard(time_passed)
+        self._handle_input(time_passed)
 
         self._objects.update(gametime)
 
         self._last_update = gametime
 
-    def _handle_mouse(self):
-        x, y = mouse.get_pos()
-        pressed_buttons = mouse.get_pressed()
-
-        if pressed_buttons[0]:
-            if not self._dragging:
-                self._mouse_drag_start = self._camera.point_to_map(x, y)
-                self._selection_rect = Rect(self._mouse_drag_start, (0, 0))
-                self._dragging = True
-        else:
-            if self._dragging:
-                self._mouse_dragged()
-                self._dragging = False
-
-        if pressed_buttons[2]:
-            if not self._mouse_right_down:
-                self._mouse_right_down = True
-        else:
-            if self._mouse_right_down:
-                self._mouse_right_clicked(x, y)
-                self._mouse_right_down = False
-
-        if self._mouse_last_pos is None or self._mouse_last_pos != (x, y):
-            self._mouse_moved(x, y)
-        self._mouse_last_pos = (x, y)
-
-    def _mouse_dragged(self):
-        self._objects.select(self._selection_rect)
-
-    def _mouse_right_clicked(self, x, y):
-        self._objects.send_selected(self._camera.point_to_map(x, y))
-
-    def _mouse_moved(self, x, y):
-        if self._dragging:
-            self._update_selection_rect(x, y)
-
-    def _update_selection_rect(self, x, y):
-        map_x, map_y = self._camera.point_to_map(x, y)
-        self._selection_rect = Rect(min(self._mouse_drag_start[0], map_x),
-                                    min(self._mouse_drag_start[1], map_y),
-                                    abs(map_x - self._mouse_drag_start[0]),
-                                    abs(map_y - self._mouse_drag_start[1]))
-
-    def _handle_keyboard(self, time_passed):
+    def _handle_input(self, time_passed):
         pressed_keys = pygame.key.get_pressed()
 
         delta = 0.25 * time_passed
@@ -143,6 +99,55 @@ class Game:
             self._objects.move_object(self._player_character, -delta, 0)
         if pressed_keys[pygame.K_RIGHT]:
             self._objects.move_object(self._player_character, delta, 0)
+
+        # mouse
+        x, y = mouse.get_pos()
+        pressed_buttons = mouse.get_pressed()
+
+        if pressed_buttons[0]:
+            if not self._dragging:
+                self._mouse_drag_start = self._camera.point_to_map(x, y)
+                self._selection_rect = Rect(self._mouse_drag_start, (0, 0))
+                self._dragging = True
+        else:
+            if self._dragging:
+                self._mouse_dragged()
+                self._dragging = False
+
+        if pressed_buttons[2]:
+            if not self._mouse_right_down:
+                self._mouse_right_down = True
+        else:
+            if self._mouse_right_down:
+                if pressed_keys[pygame.K_LSHIFT]:
+                    self._mouse_right_shiftclicked(x, y)
+                else:
+                    self._mouse_right_clicked(x, y)
+                self._mouse_right_down = False
+
+        if self._mouse_last_pos is None or self._mouse_last_pos != (x, y):
+            self._mouse_moved(x, y)
+        self._mouse_last_pos = (x, y)
+
+    def _mouse_dragged(self):
+        self._objects.select(self._selection_rect)
+
+    def _mouse_right_clicked(self, x, y):
+        self._objects.send_selected(self._camera.point_to_map(x, y))
+
+    def _mouse_right_shiftclicked(self, x, y):
+        self._objects.send_selected(self._camera.point_to_map(x, y), True)
+
+    def _mouse_moved(self, x, y):
+        if self._dragging:
+            self._update_selection_rect(x, y)
+
+    def _update_selection_rect(self, x, y):
+        map_x, map_y = self._camera.point_to_map(x, y)
+        self._selection_rect = Rect(min(self._mouse_drag_start[0], map_x),
+                                    min(self._mouse_drag_start[1], map_y),
+                                    abs(map_x - self._mouse_drag_start[0]),
+                                    abs(map_y - self._mouse_drag_start[1]))
 
     def _camera_moved(self):
         if self._dragging:

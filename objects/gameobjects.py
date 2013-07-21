@@ -67,10 +67,13 @@ class Unit(GameObject):
                 move_dist = self._set_dest(self._waypoints.pop(0))
                 self._move_end_time = gametime + move_dist / self.speed
 
-    def send_to(self, destination):
+    def send_to(self, destination, add_waypoint=False):
         center_dst = (destination[0] - self.bbox.width / 2,
                       destination[1] - self.bbox.height / 2)
-        self._waypoints = [center_dst]
+        if add_waypoint:
+            self._waypoints.append(center_dst)
+        else:
+            self._waypoints = [center_dst]
 
     def _set_dest(self, dst):
         pos = (self.bbox.x, self.bbox.y)

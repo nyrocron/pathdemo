@@ -227,7 +227,7 @@ class ObjectManager:
         for obj in self.selection:
             obj.selected = True
 
-    def send_selected(self, destination):
+    def send_selected(self, destination, add_waypoint=False):
         """Send all selected objects to (x, y)."""
-        for object in self.selection:
-            object.send_to(destination)
+        for obj in self.selection:
+            obj.send_to(destination, add_waypoint)
