@@ -43,6 +43,7 @@ class Game:
         self._mouse_drag_startx = -1
         self._mouse_drag_starty = -1
         self._mouse_left_down = False
+        self._mouse_right_down = False
 
     def _load(self):
         unit_tex = self._renderer.load_texture('character.png')
@@ -76,10 +77,22 @@ class Game:
                 self._mouse_dragged(self._mouse_drag_start, (x, y))
                 self._mouse_left_down = False
 
+        if pressed_buttons[2]:
+            if not self._mouse_right_down:
+                self._mouse_right_down = True
+        else:
+            if self._mouse_right_down:
+                self._mouse_right_clicked(x, y)
+                self._mouse_right_down = False
+
     def _mouse_dragged(self, start, end):
         drag_rect = Rect(min(start[0], end[0]), min(start[1], end[1]),
                          abs(end[0] - start[0]), abs(end[1] - start[1]))
         self._objects.select(self._camera.rect_to_map(drag_rect))
+
+    def _mouse_right_clicked(self, x, y):
+        map_pos = self._camera.point_to_map(x, y)
+        self._objects.send_selected(map_pos)
 
     def _handle_keyboard(self, time_passed):
         pressed_keys = pygame.key.get_pressed()

@@ -190,3 +190,6 @@ class ObjectManager:
         self.selection = new_selection
         for obj in self.selection:
             obj.selected = True
+
+    def send_selected(self, x, y):
+        pass
