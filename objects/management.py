@@ -15,11 +15,13 @@ class QuadtreeNode:
     """Represents one noe of a Quadtree."""
 
     def __init__(self, parent, bbox):
-        if (not self._is_power2(bbox.width) or
-            not self._is_power2(bbox.height)):
+        """Create new Quadtree node."""
+        if (not self._is_power2(bbox.width) or not
+                self._is_power2(bbox.height)):
             raise TreeError("node dimensions have to be power of two,"
                             " bbox given was " + str(bbox))
 
+        assert(parent is None or isinstance(parent, QuadtreeNode))
         self.parent = parent
         self._bb = bbox
 

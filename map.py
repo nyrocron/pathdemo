@@ -18,6 +18,9 @@ class Map:
     _tile_size = 16
 
     def __init__(self, map_name=None):
+        self.tiles_x = 0
+        self.tiles_y = 0
+        self.size = None
         self._texmap = image.load('content/texmap.png')
         self._texmap_tiles_x = 16
         self._texmap_tiles_y = 16
@@ -44,8 +47,9 @@ class Map:
 
         self.tiles_y = len(self._tiles)
 
-        self.size = Rect(0, 0, self.tiles_x * Map._tile_size,
-                               self.tiles_y * Map._tile_size)
+        self.size = Rect(0, 0,
+                         self.tiles_x * Map._tile_size,
+                         self.tiles_y * Map._tile_size)
 
     def draw(self, surface, view_rect, to_screen):
         """Draw map to surface.

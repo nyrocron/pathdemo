@@ -11,7 +11,7 @@ def point_dist(p1, p2):
     return sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)
 
 def vector_normalize(v):
-    vlen = sqrt(v[0]**2 + v[1]**2)
+    vlen = sqrt(v[0] ** 2 + v[1] ** 2)
     return v[0] / vlen, v[1] / vlen
 
 def vector_add(v1, v2):
@@ -24,4 +24,4 @@ def vector_mul(v, n):
     return v[0] * n, v[1] * n
 
 def vector_len(v):
-    return sqrt(v[0]**2 + v[1]**2)
+    return sqrt(v[0] ** 2 + v[1] ** 2)
