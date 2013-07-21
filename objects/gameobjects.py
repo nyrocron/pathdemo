@@ -8,6 +8,8 @@
 
 
 class GameObject:
+    """Superclass of all game objects, has id and bbox (location) attribute"""
+
     _id_counter = 0
 
     def __init__(self, bbox, obj_id=None):

@@ -12,6 +12,7 @@ from pygame import image, draw
 class Renderer:
     """Manages textures/assignments and provides methods for drawing objects
     and other graphics to pygame surfaces"""
+
     def __init__(self, surface, camera):
         self._surface = surface
         self._cam = camera
@@ -63,10 +64,12 @@ class TextureError(Exception):
 
 
 class Texture:
+    """Represents a texture"""
     TEXTURE_DIR = 'content/textures/'
     _id_counter = 0
 
     def __init__(self, texture_name):
+        """Load texture with name texture_name."""
         texture_path = Texture.TEXTURE_DIR + texture_name
         try:
             self.surface = image.load(texture_path)

@@ -161,6 +161,7 @@ class QuadtreeNode:
 
 class Quadtree(QuadtreeNode):
     """Represents a quadtree that contains objects with a location attribute"""
+
     def __init__(self, bbox):
         QuadtreeNode.__init__(self, None, bbox)
 
@@ -171,6 +172,7 @@ class ObjectManagementError(Exception):
 
 class ObjectManager:
     """Manages game objects and provides methods for interacting with them"""
+
     def __init__(self, bbox):
         self._bb = bbox
         self._quadtree = Quadtree(self._bb)

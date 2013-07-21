@@ -15,6 +15,7 @@ class MapError(Exception):
 
 class Map:
     """manages map background content and drawing"""
+
     MAP_DIR = 'content/maps/'
     _tile_size = 16
 

@@ -19,6 +19,7 @@ from objects.gameobjects import Unit
 
 class Game:
     """Manages other game modules."""
+
     def __init__(self):
         pygame.init()
 

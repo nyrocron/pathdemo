@@ -12,6 +12,7 @@ from pygame import Rect
 class Camera:
     """Manages current view rectangle and provides methods to convert
     coordinates from/to screen/map coordinate systems."""
+
     def __init__(self, view_size):
         self.view_rect = Rect((0, 0), view_size)
 
