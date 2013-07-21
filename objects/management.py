@@ -177,6 +177,11 @@ class ObjectManager:
         self._id_to_obj = {}
         self.selection = set()
 
+    def update(self, gametime):
+        """Update objects"""
+        for obj in self._id_to_obj.values():
+            obj.update(gametime)
+
     def create(self, which, location):
         """Create a new object of type which at location."""
         obj = which(location)
@@ -216,4 +221,5 @@ class ObjectManager:
 
     def send_selected(self, x, y):
         """Send all selected objects to (x, y)."""
-        pass
+        for object in self.selection:
+            object.set_dest(x, y)

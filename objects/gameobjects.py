@@ -4,19 +4,24 @@
 
 """gameobjects.py: game objects"""
 
+from util import point_dist
+
 
 class GameObject:
     """Superclass of all game objects, has id and bbox (location) attribute"""
 
     _id_counter = 0
+    MOVE_THRESHOLD = 0.1
 
     def __init__(self, bbox, obj_id=None):
         self.bbox = bbox
-        self.selected = False
         if obj_id is None:
             self.id = GameObject._new_id()
         else:
             self.id = obj_id
+
+        self.selected = False
+        self.max_speed = 2
 
     def __repr__(self):
         return '<' + str(self) + '>'
@@ -33,6 +38,15 @@ class GameObject:
     def __getattr__(self, item):
         if item == 'size':
             return self.bbox.width, self.bbox.height
+
+    def update(self, gametime):
+        # TODO: move
+        pass
+
+    def set_dest(self, x, y):
+        if point_dist((x, y), self.bbox.center) > GameObject.MOVE_THRESHOLD:
+            # TODO: update dest
+            pass
 
     @staticmethod
     def _new_id():
