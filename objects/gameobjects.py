@@ -23,7 +23,7 @@ class GameObject:
         return '<' + str(self) + '>'
 
     def __str__(self):
-        return ('GameObject(' + str(self.bbox) + ', id=' + str(self.id) + ')')
+        return 'GameObject(' + str(self.bbox) + ', id=' + str(self.id) + ')'
 
     def __hash__(self):
         return self.id
@@ -46,14 +46,22 @@ class Unit(GameObject):
 
     def __init__(self, manager, bbox):
         GameObject.__init__(self, manager, bbox)
+
         self._waypoints = []
         self._is_moving = False
+
+        self._move_start = None
+        self._move_dest = None
+        self._move_dir = None
+        self._move_start_time = 0
+        self._move_end_time = 0
 
         self.speed = 0.1
 
     def update(self, gametime):
         if self._is_moving:
             if gametime > self._move_end_time:
+                self._manager.move_object_to(self, self._move_dest)
                 self._is_moving = False
             else:
                 time_passed = gametime - self._move_start_time
@@ -75,11 +83,12 @@ class Unit(GameObject):
         else:
             self._waypoints = [center_dst]
 
-    def _set_dest(self, dst):
+    def _set_dest(self, destination):
         pos = (self.bbox.x, self.bbox.y)
-        if util.point_dist(dst, pos) > Unit.MOVE_THRESHOLD:
-            move_vector = util.vector_diff(dst, pos)
+        if util.point_dist(destination, pos) > Unit.MOVE_THRESHOLD:
+            move_vector = util.vector_diff(destination, pos)
             self._move_start = pos
+            self._move_dest = destination
             self._move_dir = util.vector_normalize(move_vector)
             self._is_moving = True
             return util.vector_len(move_vector)
