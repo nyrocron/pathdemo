@@ -4,7 +4,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-"""map.py: """
+"""map.py: map background management"""
 
 from pygame import image, Rect
 
@@ -14,6 +14,7 @@ class MapError(Exception):
 
 
 class Map:
+    """manages map background content and drawing"""
     _tile_size = 16
 
     def __init__(self, map_name=None):

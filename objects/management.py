@@ -4,7 +4,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-"""FILENAME.py: """
+"""management.py: game object management"""
 
 from pygame import Rect
 
@@ -14,6 +14,8 @@ class TreeError(Exception):
 
 
 class QuadtreeNode:
+    """Represents one noe of a Quadtree."""
+
     def __init__(self, parent, bbox):
         if (not self._is_power2(bbox.width) or
             not self._is_power2(bbox.height)):
@@ -28,6 +30,7 @@ class QuadtreeNode:
         self._childs = [None] * 4
 
     def insert(self, obj):
+        """Insert object into the tree under this node."""
         if not self._bb.contains(obj.bbox):
             return False
 
@@ -43,6 +46,9 @@ class QuadtreeNode:
         return True
 
     def query(self, area=None):
+        """Query for objects in the tree under this node.
+
+        If area is set this will only objects that are contained in area"""
         result = set()
         if area is not None and not self._bb.contains_rect(area):
             return result
@@ -61,6 +67,9 @@ class QuadtreeNode:
         return result
 
     def query_intersect(self, area):
+        """Query for objects in the tree under this node.
+
+        If area is set this will only objects that intersect with area"""
         result = set()
         if not self._bb.colliderect(area):
             return result
@@ -79,26 +88,21 @@ class QuadtreeNode:
         return result
 
     def move_to(self, obj, new_bbox):
+        """Move obj to new location."""
         if not self._bb.contains(obj.bbox):
             return False
         if obj in self._data:
             self._data.remove(obj)
-            #self._purge_empty_nodes()
             obj.bbox = new_bbox
-            self.insert_up(obj)
+            self._insert_up(obj)
             return True
         for child in self._childs:
             if child.move_to(obj, new_bbox):
                 return True
         raise TreeError("move failed")
 
-    def insert_up(self, obj):
-        if self._bb.contains(obj.bbox):
-            self.insert(obj)
-        else:
-            self.parent.insert_up(obj)
-
     def print_tree(self, indent=0):
+        """Print contents of this tree"""
         print(' ' * indent + str(self._data))
 
         if not self._has_children:
@@ -106,6 +110,12 @@ class QuadtreeNode:
 
         for child in self._childs:
             child.print_tree(indent + 2)
+
+    def _insert_up(self, obj):
+        if self._bb.contains(obj.bbox):
+            self.insert(obj)
+        else:
+            self.parent._insert_up(obj)
 
     def _subdivide(self):
         split_width = self._bb.width // 2
@@ -150,6 +160,7 @@ class QuadtreeNode:
 
 
 class Quadtree(QuadtreeNode):
+    """Represents a quadtree that contains objects with a location attribute"""
     def __init__(self, bbox):
         QuadtreeNode.__init__(self, None, bbox)
 
@@ -159,6 +170,7 @@ class ObjectManagementError(Exception):
 
 
 class ObjectManager:
+    """Manages game objects and provides methods for interacting with them"""
     def __init__(self, bbox):
         self._bb = bbox
         self._quadtree = Quadtree(self._bb)
@@ -166,20 +178,24 @@ class ObjectManager:
         self.selection = set()
 
     def create(self, which, location):
+        """Create a new object of type which at location."""
         obj = which(location)
         self._id_to_obj[obj.id] = obj
         self._quadtree.insert(obj)
         return obj
 
     def query(self, area=None):
+        """Get all objects or all objects that intersect with area if set."""
         if area is None:
             area = self._bb
         return self._quadtree.query_intersect(area)
 
     def get_object_by_id(self, obj_id):
+        """Get an object by its id."""
         return self._id_to_obj[obj_id]
 
     def move_object(self, obj_id, x, y):
+        """Move object with id obj_id by (x, y)."""
         obj = self.get_object_by_id(obj_id)
         new_bbox = obj.bbox.move(x, y)
         if not self._bb.contains(new_bbox):
@@ -188,6 +204,7 @@ class ObjectManager:
         return True
 
     def select(self, area):
+        """Select all objects in area."""
         new_selection = self.query(area)
 
         for obj in self.selection.difference(new_selection):
@@ -198,4 +215,5 @@ class ObjectManager:
             obj.selected = True
 
     def send_selected(self, x, y):
+        """Send all selected objects to (x, y)."""
         pass
