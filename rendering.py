@@ -1,7 +1,6 @@
 __author__ = 'Florian Tautz'
 
-from pygame import image
-from objects.gameobjects import Unit
+from pygame import image, draw
 
 
 class Renderer:
@@ -34,6 +33,9 @@ class Renderer:
             self._draw_object(obj)
             if obj.selected:
                 self._draw_highlight(obj.bbox)
+
+    def draw_rectangle(self, rect, color):
+        draw.rect(self._surface, color, self._cam.rect_to_screen(rect), 1)
 
     def _draw_object(self, obj):
         dst_rect = self._cam.rect_to_screen(obj.bbox)
