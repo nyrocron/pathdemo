@@ -12,13 +12,10 @@ class GameObject:
 
     _id_counter = 0
 
-    def __init__(self, manager, bbox, obj_id=None):
+    def __init__(self, manager, bbox):
         self._manager = manager
         self.bbox = bbox
-        if obj_id is None:
-            self.id = GameObject._new_id()
-        else:
-            self.id = obj_id
+        self.id = GameObject._new_id()
 
         self.selected = False
 
@@ -47,33 +44,41 @@ class GameObject:
 class Unit(GameObject):
     MOVE_THRESHOLD = 0.5
 
-    def __init__(self, manager, bbox, obj_id=None):
-        GameObject.__init__(self, manager, bbox, obj_id)
+    def __init__(self, manager, bbox):
+        GameObject.__init__(self, manager, bbox)
         self._waypoints = []
         self._is_moving = False
 
         self.speed = 0.1
 
-    def update(self, time_passed):
+    def update(self, gametime):
         if self._is_moving:
-            pos = (self.bbox.x, self.bbox.y)
-            if util.point_dist(pos, self._destination) < Unit.MOVE_THRESHOLD:
+            if gametime > self._move_end_time:
                 self._is_moving = False
             else:
-                move_dist = self.speed * time_passed
-                move_dir = util.vector_normalize(
-                    util.vector_diff(self._destination, pos))
-                move_x, move_y = util.vector_mul(move_dir, move_dist)
-                self._manager.move_object(self.id, move_x, move_y)
+                time_passed = gametime - self._move_start_time
+                new_pos = util.vector_add(self._move_start,
+                                          util.vector_mul(self._move_dir,
+                                          time_passed * self.speed))
+                self._manager.move_object_to(self, new_pos)
         else:
             if len(self._waypoints) > 0:
-                self._set_dest(self._waypoints.pop(0))
+                self._move_start_time = gametime
+                move_dist = self._set_dest(self._waypoints.pop(0))
+                self._move_end_time = gametime + move_dist / self.speed
 
     def send_to(self, destination):
-        self._waypoints = [destination]
+        center_dst = (destination[0] - self.bbox.width / 2,
+                      destination[1] - self.bbox.height / 2)
+        self._waypoints = [center_dst]
 
     def _set_dest(self, dst):
         pos = (self.bbox.x, self.bbox.y)
         if util.point_dist(dst, pos) > Unit.MOVE_THRESHOLD:
-            self._destination = dst
+            move_vector = util.vector_diff(dst, pos)
+            self._move_start = pos
+            self._move_dir = util.vector_normalize(move_vector)
             self._is_moving = True
+            return util.vector_len(move_vector)
+        else:
+            return 0

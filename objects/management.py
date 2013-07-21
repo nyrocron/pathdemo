@@ -177,10 +177,10 @@ class ObjectManager:
         self._id_to_obj = {}
         self.selection = set()
 
-    def update(self, time_passed):
+    def update(self, gametime):
         """Update objects"""
         for obj in self._id_to_obj.values():
-            obj.update(time_passed)
+            obj.update(gametime)
 
     def create(self, which, location):
         """Create a new object of type which at location."""
@@ -203,6 +203,14 @@ class ObjectManager:
         """Move object with id obj_id by (x, y)."""
         obj = self.get_object_by_id(obj_id)
         new_bbox = obj.bbox.move(x, y)
+        if not self._bb.contains(new_bbox):
+            return False
+        self._quadtree.move_to(obj, new_bbox)
+        return True
+
+    def move_object_to(self, obj, pos):
+        """Move object to new position."""
+        new_bbox = Rect(pos, obj.bbox.size)
         if not self._bb.contains(new_bbox):
             return False
         self._quadtree.move_to(obj, new_bbox)

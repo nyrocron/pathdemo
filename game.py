@@ -63,17 +63,17 @@ class Game:
 
         self._renderer.assign_texture(self._player_character, unit_tex)
 
-    def _update(self, game_time):
-        time_passed = game_time - self._last_update
+    def _update(self, gametime):
+        time_passed = gametime - self._last_update
         if time_passed < 10:
             return
 
         self._handle_mouse()
         self._handle_keyboard(time_passed)
 
-        self._objects.update(time_passed)
+        self._objects.update(gametime)
 
-        self._last_update = game_time
+        self._last_update = gametime
 
     def _handle_mouse(self):
         x, y = mouse.get_pos()
