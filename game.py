@@ -71,6 +71,8 @@ class Game:
         self._handle_mouse()
         self._handle_keyboard(time_passed)
 
+        self._objects.update(time_passed)
+
         self._last_update = game_time
 
     def _handle_mouse(self):
@@ -103,8 +105,7 @@ class Game:
         self._objects.select(self._selection_rect)
 
     def _mouse_right_clicked(self, x, y):
-        map_x, map_y = self._camera.point_to_map(x, y)
-        self._objects.send_selected(map_x, map_y)
+        self._objects.send_selected(self._camera.point_to_map(x, y))
 
     def _mouse_moved(self, x, y):
         if self._dragging:

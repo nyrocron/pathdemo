@@ -177,14 +177,14 @@ class ObjectManager:
         self._id_to_obj = {}
         self.selection = set()
 
-    def update(self, gametime):
+    def update(self, time_passed):
         """Update objects"""
         for obj in self._id_to_obj.values():
-            obj.update(gametime)
+            obj.update(time_passed)
 
     def create(self, which, location):
         """Create a new object of type which at location."""
-        obj = which(location)
+        obj = which(self, location)
         self._id_to_obj[obj.id] = obj
         self._quadtree.insert(obj)
         return obj
@@ -219,7 +219,7 @@ class ObjectManager:
         for obj in self.selection:
             obj.selected = True
 
-    def send_selected(self, x, y):
+    def send_selected(self, destination):
         """Send all selected objects to (x, y)."""
         for object in self.selection:
-            object.set_dest(x, y)
+            object.send_to(destination)
