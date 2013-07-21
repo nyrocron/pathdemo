@@ -18,6 +18,7 @@ from objects.gameobjects import Unit
 
 
 class Game:
+    """Manages other game modules."""
     def __init__(self):
         pygame.init()
 
@@ -36,6 +37,7 @@ class Game:
         self._load()
 
     def run(self):
+        """Run the main game loop."""
         self._last_update = 0
 
         self._run = True

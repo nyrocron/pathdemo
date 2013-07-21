@@ -15,6 +15,7 @@ class MapError(Exception):
 
 class Map:
     """manages map background content and drawing"""
+    MAP_DIR = 'content/maps/'
     _tile_size = 16
 
     def __init__(self, map_name=None):
@@ -26,11 +27,12 @@ class Map:
             self.load(map_name)
 
     def load(self, map_name):
+        """Load map with name map_name."""
         self.tiles_x = None
         self.tiles_y = None
         self._tiles = []
 
-        fh = open('content/maps/' + map_name + '.map', 'r')
+        fh = open(Map.MAP_DIR + map_name + '.map', 'r')
         for line in fh:
             items = [int(x) for x in line.split()]
             if self.tiles_x is None:
@@ -47,6 +49,10 @@ class Map:
                                self.tiles_y * Map._tile_size)
 
     def draw(self, surface, view_rect, to_screen):
+        """Draw map to surface.
+
+        Only draw tiles in view_rect and use to_screen to convert
+        map coordinates to screen coordinates"""
         tile_startx = max(0, view_rect.x // Map._tile_size)
         tile_starty = max(0, view_rect.y // Map._tile_size)
         tiles_x = min(self.tiles_x - tile_startx,

@@ -10,6 +10,8 @@ from pygame import image, draw
 
 
 class Renderer:
+    """Manages textures/assignments and provides methods for drawing objects
+    and other graphics to pygame surfaces"""
     def __init__(self, surface, camera):
         self._surface = surface
         self._cam = camera
