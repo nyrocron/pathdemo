@@ -26,9 +26,9 @@ class Renderer:
         self._textures[tex.id] = tex
         return tex.id
 
-    def assign_texture(self, obj_id, tex_id):
-        """Assign texture to object by ids."""
-        self._texture_assignments[obj_id] = tex_id
+    def assign_texture(self, key, tex_id):
+        """Assign texture to a key (for example object id)."""
+        self._texture_assignments[key] = tex_id
 
     def texture_size(self, tex_id):
         """Get size of a texture by id."""
