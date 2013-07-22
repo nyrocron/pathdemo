@@ -21,28 +21,34 @@ class Renderer:
         self.assign_texture('unit_highlight', unit_highlight_texture)
 
     def load_texture(self, texture_name):
+        """Load texture and return texture id."""
         tex = Texture(texture_name)
         self._textures[tex.id] = tex
         return tex.id
 
-    def assign_texture(self, key, tex_id):
-        self._texture_assignments[key] = tex_id
+    def assign_texture(self, obj_id, tex_id):
+        """Assign texture to object by ids."""
+        self._texture_assignments[obj_id] = tex_id
 
     def texture_size(self, tex_id):
+        """Get size of a texture by id."""
         return self._textures[tex_id].size
 
     def draw_map(self, map_):
+        """Draw map at the appropriate location."""
         map_.draw(self._surface, self._cam.view_rect,
                   self._cam.point_to_screen)
 
     def draw_objects(self, objs):
+        """Draw a set of objects at the appropriate location."""
         for obj in objs:
             self._draw_object(obj)
             if obj.selected:
                 self._draw_highlight(obj.bbox)
 
-    def draw_rectangle(self, rect, color):
-        draw.rect(self._surface, color, self._cam.rect_to_screen(rect), 1)
+    def draw_rectangle(self, rect, color, width=1):
+        """Draw a simple non-filled rectangle."""
+        draw.rect(self._surface, color, self._cam.rect_to_screen(rect), width)
 
     def _draw_object(self, obj):
         dst_rect = self._cam.rect_to_screen(obj.bbox)
