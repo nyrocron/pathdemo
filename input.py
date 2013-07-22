@@ -43,14 +43,14 @@ class InputManager:
         self._keybinds[key].remove(callback)
 
     def _key_down(self, event):
-        pass
-
-    def _key_up(self, event):
         try:
             for f in self._keybinds[event.key]:
                 f()
         except KeyError:
             pass
+
+    def _key_up(self, event):
+        pass
 
     def _mouse_moved(self, event):
         if self._mouse_left_is_down:
