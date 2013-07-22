@@ -49,7 +49,7 @@ class InputManager:
         self._keybinds[key].remove(callback)
 
     def add_mouse_action(self, area, callback):
-        pass
+        pass  # TODO: implement hot area binding
 
     def _key_down(self, event):
         try:
@@ -70,6 +70,8 @@ class InputManager:
                 self._mouse_drag_start = event.pos
                 self.mouse_dragging = True
                 EventManager.post(self.mouse_drag_start, pos=event.pos)
+
+        # TODO: implement hot areas
 
     def _mouse_down(self, event):
         if event.button == InputManager.MOUSE_LEFT:
