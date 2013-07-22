@@ -62,12 +62,12 @@ class Map:
                       view_rect.width // Map._tile_size)
         tiles_y = min(self.tiles_y - tile_starty,
                       view_rect.height // Map._tile_size)
+        tile_size = (Map._tile_size, Map._tile_size)
         for y in range(tile_starty, tile_starty + tiles_y):
             for x in range(tile_startx, tile_startx + tiles_x):
                 src_rect = self._get_tex_rect(self._get_tile(x, y))
-                dst_rect = Rect(to_screen(x * Map._tile_size,
-                                          y * Map._tile_size),
-                                (Map._tile_size, Map._tile_size))
+                tile_pos = (x * Map._tile_size, y * Map._tile_size)
+                dst_rect = Rect(to_screen(tile_pos), tile_size)
                 surface.blit(self._texmap, dst_rect, src_rect)
 
     def _get_tile(self, x, y):

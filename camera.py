@@ -26,8 +26,8 @@ class Camera:
     def rect_to_map(self, rect):
         return rect.move(self.view_rect.x, self.view_rect.y)
 
-    def point_to_screen(self, x, y):
-        return x - self.view_rect.x, y - self.view_rect.y
+    def point_to_screen(self, p):
+        return p[0] - self.view_rect.x, p[1] - self.view_rect.y
 
-    def point_to_map(self, x, y):
-        return x + self.view_rect.x, y + self.view_rect.y
+    def point_to_map(self, p):
+        return p[0] + self.view_rect.x, p[1] + self.view_rect.y

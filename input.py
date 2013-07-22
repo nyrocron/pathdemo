@@ -29,7 +29,6 @@ class InputManager:
         self.mouse_drag_end = EventManager.new_event_code()
         self.mouse_drag_update = EventManager.new_event_code()
         self.mouse_dragging = False
-        self.mouse_drag_rect = None
         self._mouse_drag_start = None
 
     def update(self):
@@ -56,13 +55,11 @@ class InputManager:
     def _mouse_moved(self, event):
         if self._mouse_left_is_down:
             if self.mouse_dragging:
-                self._update_drag_rect(event.pos)
-                EventManager.post(self.mouse_drag_update)
+                EventManager.post(self.mouse_drag_update, pos=event.pos)
             else:
                 self._mouse_drag_start = event.pos
                 self.mouse_dragging = True
-                self._update_drag_rect(event.pos)
-                EventManager.post(self.mouse_drag_start)
+                EventManager.post(self.mouse_drag_start, pos=event.pos)
 
     def _mouse_down(self, event):
         if event.button == InputManager.MOUSE_LEFT:
@@ -75,13 +72,6 @@ class InputManager:
             if self.mouse_dragging:
                 self.mouse_dragging = False
                 EventManager.post(self.mouse_drag_end)
-
-    def _update_drag_rect(self, pos):
-        self.mouse_drag_rect = pygame.Rect(
-            min(pos[0], self._mouse_drag_start[0]),
-            min(pos[1], self._mouse_drag_start[1]),
-            abs(pos[0] - self._mouse_drag_start[0]),
-            abs(pos[1] - self._mouse_drag_start[1]))
 
     #def _handle_input(self, time_passed):
     #    pressed_keys = pygame.key.get_pressed()

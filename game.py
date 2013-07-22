@@ -24,8 +24,9 @@ class Game:
         self._run = False
         self._last_update = 0
 
-        self._mouse_drag_start = None
+        self._last_mouse_pos = None
         self._selecting = False
+        self._select_start_pos = None
         self._selection_rect = None
         self._mouse_right_down = False
 
@@ -41,20 +42,19 @@ class Game:
 
         self._load()
 
-        self._event_handler = EventManager()
-        self._event_handler.subscribe(pygame.QUIT, self._handle_quit)
-        self._event_handler.subscribe(self._camera.move_event,
-                                      self._camera_moved)
+        self._event_mgr = EventManager()
+        self._event_mgr.subscribe(pygame.QUIT, self._handle_quit)
+        self._event_mgr.subscribe(self._camera.move_event, self._camera_moved)
 
-        self._input_manager = InputManager(self._event_handler)
+        self._input_manager = InputManager(self._event_mgr)
         self._input_manager.add_keybind(pygame.K_ESCAPE, self.stop)
 
-        self._event_handler.subscribe(self._input_manager.mouse_drag_start,
-                                      self._select_start)
-        self._event_handler.subscribe(self._input_manager.mouse_drag_update,
-                                      self._update_selection_rectangle)
-        self._event_handler.subscribe(self._input_manager.mouse_drag_end,
-                                      self._select_end)
+        self._event_mgr.subscribe(self._input_manager.mouse_drag_start,
+                                  self._select_start)
+        self._event_mgr.subscribe(self._input_manager.mouse_drag_update,
+                                  self._select_update)
+        self._event_mgr.subscribe(self._input_manager.mouse_drag_end,
+                                  self._select_end)
 
     def run(self):
         """Run the main game loop."""
@@ -84,27 +84,34 @@ class Game:
         if time_passed < 10:
             return
 
-        self._event_handler.update()
+        self._event_mgr.update()
         self._input_manager.update()
         self._objects.update(gametime)
         self._last_update = gametime
 
     def _camera_moved(self, event=None):
         if self._selecting:
-            self._update_selection_rectangle()
+            self._update_selection_rectangle(self._last_mouse_pos)
 
-    def _select_start(self, event=None):
+    def _select_start(self, event):
         self._selecting = True
-        self._update_selection_rectangle()
+        self._select_start_pos = event.pos
+        self._update_selection_rectangle(event.pos)
 
     def _select_end(self, event=None):
         self._selecting = False
         self._objects.select(self._selection_rect)
 
-    def _update_selection_rectangle(self, event=None):
-        # TODO handle all rect updates on game level
-        self._selection_rect = self._camera.rect_to_map(
-            self._input_manager.mouse_drag_rect)
+    def _select_update(self, event):
+        self._last_mouse_pos = event.pos
+        self._update_selection_rectangle(event.pos)
+
+    def _update_selection_rectangle(self, pos):
+        map_pos = self._camera.point_to_map(pos)
+        self._selection_rect = Rect(min(self._select_start_pos[0], map_pos[0]),
+                                    min(self._select_start_pos[1], map_pos[1]),
+                                    abs(map_pos[0] - self._select_start_pos[0]),
+                                    abs(map_pos[1] - self._select_start_pos[1]))
 
     def _draw(self):
         self._screen.fill((0, 0, 0))  # clear black
