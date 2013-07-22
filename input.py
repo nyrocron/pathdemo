@@ -5,13 +5,16 @@
 """input.py: input management"""
 
 import pygame
+import util
 from events import EventManager
 
-
 class InputManager:
+    """Manages keyboard and mouse input."""
     MOUSE_LEFT = 1
     MOUSE_MIDDLE = 2
     MOUSE_RIGHT = 3
+
+    MOUSE_DRAG_THRESHOLD = 3
 
     def __init__(self, event_manager):
         event_manager.subscribe(pygame.KEYDOWN, self._key_down)
@@ -22,17 +25,20 @@ class InputManager:
         event_manager.subscribe(pygame.MOUSEMOTION, self._mouse_moved)
 
         self._keybinds = {}
+        self._hot_areas = {}
 
         self._mouse_left_is_down = False
+        self._mouse_left_down_pos = None
 
+        # events
+        self.mouse_lclick = EventManager.new_event_code()
+        self.mouse_rclick = EventManager.new_event_code()
         self.mouse_drag_start = EventManager.new_event_code()
         self.mouse_drag_end = EventManager.new_event_code()
         self.mouse_drag_update = EventManager.new_event_code()
+
         self.mouse_dragging = False
         self._mouse_drag_start = None
-
-    def update(self):
-        pass
 
     def add_keybind(self, key, callback):
         if not key in self._keybinds:
@@ -41,6 +47,9 @@ class InputManager:
 
     def remove_keybind(self, key, callback):
         self._keybinds[key].remove(callback)
+
+    def add_mouse_action(self, area, callback):
+        pass
 
     def _key_down(self, event):
         try:
@@ -56,7 +65,8 @@ class InputManager:
         if self._mouse_left_is_down:
             if self.mouse_dragging:
                 EventManager.post(self.mouse_drag_update, pos=event.pos)
-            else:
+            elif InputManager.MOUSE_DRAG_THRESHOLD <\
+                    util.point_dist(self._mouse_left_down_pos, event.pos):
                 self._mouse_drag_start = event.pos
                 self.mouse_dragging = True
                 EventManager.post(self.mouse_drag_start, pos=event.pos)
@@ -64,6 +74,7 @@ class InputManager:
     def _mouse_down(self, event):
         if event.button == InputManager.MOUSE_LEFT:
             self._mouse_left_is_down = True
+            self._mouse_left_down_pos = event.pos
 
     def _mouse_up(self, event):
         if event.button == InputManager.MOUSE_LEFT:

@@ -86,7 +86,6 @@ class Game:
             return
 
         self._event_mgr.update()
-        self._input_manager.update()
         self._objects.update(gametime)
         self._camera.update(time_passed)
 
