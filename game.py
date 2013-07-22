@@ -48,6 +48,7 @@ class Game:
 
         self._input_manager = InputManager(self._event_mgr)
         self._input_manager.add_keybind(pygame.K_ESCAPE, self.stop)
+        self._input_manager.add_keybind(pygame.K_q, self.stop)
 
         self._event_mgr.subscribe(self._input_manager.mouse_drag_start,
                                   self._select_start)
@@ -58,7 +59,7 @@ class Game:
 
     def run(self):
         """Run the main game loop."""
-        self._last_update = 0
+        self._last_update = pygame.time.get_ticks()
 
         self._run = True
         while self._run:
@@ -87,9 +88,11 @@ class Game:
         self._event_mgr.update()
         self._input_manager.update()
         self._objects.update(gametime)
+        self._camera.update(time_passed)
+
         self._last_update = gametime
 
-    def _camera_moved(self, event=None):
+    def _camera_moved(self, event):
         if self._selecting:
             self._update_selection_rectangle(self._last_mouse_pos)
 
@@ -98,7 +101,7 @@ class Game:
         self._select_start_pos = event.pos
         self._update_selection_rectangle(event.pos)
 
-    def _select_end(self, event=None):
+    def _select_end(self, event):
         self._selecting = False
         self._objects.select(self._selection_rect)
 
