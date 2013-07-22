@@ -5,6 +5,7 @@
 """camera.py: camera management"""
 
 from pygame import Rect
+from events import EventManager
 
 
 class Camera:
@@ -13,9 +14,11 @@ class Camera:
 
     def __init__(self, view_size):
         self.view_rect = Rect((0, 0), view_size)
+        self.move_event = EventManager.new_event_code()
 
     def move(self, x, y):
         self.view_rect = self.view_rect.move(x, y)
+        EventManager.post(self.move_event)
 
     def rect_to_screen(self, rect):
         return rect.move(-self.view_rect.x, -self.view_rect.y)

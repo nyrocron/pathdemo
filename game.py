@@ -6,9 +6,11 @@
             of the game"""
 
 import pygame
-from pygame import Rect, mouse
+from pygame import Rect
 
 from camera import Camera
+from events import EventManager
+from input import InputManager
 from rendering import Renderer
 from map import Map
 from objects.management import ObjectManager
@@ -22,9 +24,8 @@ class Game:
         self._run = False
         self._last_update = 0
 
-        self._mouse_last_pos = None
         self._mouse_drag_start = None
-        self._dragging = False
+        self._selecting = False
         self._selection_rect = None
         self._mouse_right_down = False
 
@@ -40,17 +41,31 @@ class Game:
 
         self._load()
 
+        self._event_handler = EventManager()
+        self._event_handler.subscribe(pygame.QUIT, self._handle_quit)
+        self._event_handler.subscribe(self._camera.move_event,
+                                      self._camera_moved)
+
+        self._input_manager = InputManager(self._event_handler)
+        self._input_manager.add_keybind(pygame.K_ESCAPE, self.stop)
+
+        self._event_handler.subscribe(self._input_manager.mouse_drag_start,
+                                      self._select_start)
+        self._event_handler.subscribe(self._input_manager.mouse_drag_update,
+                                      self._update_selection_rectangle)
+        self._event_handler.subscribe(self._input_manager.mouse_drag_end,
+                                      self._select_end)
+
     def run(self):
         """Run the main game loop."""
         self._last_update = 0
 
         self._run = True
         while self._run:
-            for event in pygame.event.get():
-                self._handle_event(event)
-
             self._update(pygame.time.get_ticks())
             self._draw()
+
+        self._shutdown()
 
     def _load(self):
         unit_tex = self._renderer.load_texture('character.png')
@@ -61,84 +76,35 @@ class Game:
 
         self._renderer.assign_texture(player_character, unit_tex)
 
+    def _shutdown(self):
+        pass
+
     def _update(self, gametime):
         time_passed = gametime - self._last_update
         if time_passed < 10:
             return
 
-        self._handle_input(time_passed)
+        self._event_handler.update()
+        self._input_manager.update()
         self._objects.update(gametime)
         self._last_update = gametime
 
-    def _handle_input(self, time_passed):
-        pressed_keys = pygame.key.get_pressed()
+    def _camera_moved(self, event=None):
+        if self._selecting:
+            self._update_selection_rectangle()
 
-        delta = 0.25 * time_passed
+    def _select_start(self, event=None):
+        self._selecting = True
+        self._update_selection_rectangle()
 
-        # camera movement
-        if pressed_keys[pygame.K_w]:
-            self._camera.move(0, -delta)
-        if pressed_keys[pygame.K_s]:
-            self._camera.move(0, delta)
-        if pressed_keys[pygame.K_a]:
-            self._camera.move(-delta, 0)
-        if pressed_keys[pygame.K_d]:
-            self._camera.move(delta, 0)
-        self._camera_moved()
-
-        # mouse
-        x, y = mouse.get_pos()
-        pressed_buttons = mouse.get_pressed()
-
-        if pressed_buttons[0]:
-            if not self._dragging:
-                self._mouse_drag_start = self._camera.point_to_map(x, y)
-                self._selection_rect = Rect(self._mouse_drag_start, (0, 0))
-                self._dragging = True
-        else:
-            if self._dragging:
-                self._mouse_dragged()
-                self._dragging = False
-
-        if pressed_buttons[2]:
-            if not self._mouse_right_down:
-                self._mouse_right_down = True
-        else:
-            if self._mouse_right_down:
-                if pressed_keys[pygame.K_LSHIFT]:
-                    self._mouse_right_shiftclicked(x, y)
-                else:
-                    self._mouse_right_clicked(x, y)
-                self._mouse_right_down = False
-
-        if self._mouse_last_pos is None or self._mouse_last_pos != (x, y):
-            self._mouse_moved(x, y)
-        self._mouse_last_pos = (x, y)
-
-    def _mouse_dragged(self):
+    def _select_end(self, event=None):
+        self._selecting = False
         self._objects.select(self._selection_rect)
 
-    def _mouse_right_clicked(self, x, y):
-        self._objects.send_selected(self._camera.point_to_map(x, y))
-
-    def _mouse_right_shiftclicked(self, x, y):
-        self._objects.send_selected(self._camera.point_to_map(x, y), True)
-
-    def _mouse_moved(self, x, y):
-        if self._dragging:
-            self._update_selection_rect(x, y)
-
-    def _update_selection_rect(self, x, y):
-        map_x, map_y = self._camera.point_to_map(x, y)
-        self._selection_rect = Rect(min(self._mouse_drag_start[0], map_x),
-                                    min(self._mouse_drag_start[1], map_y),
-                                    abs(map_x - self._mouse_drag_start[0]),
-                                    abs(map_y - self._mouse_drag_start[1]))
-
-    def _camera_moved(self):
-        if self._dragging:
-            x, y = mouse.get_pos()
-            self._update_selection_rect(x, y)
+    def _update_selection_rectangle(self, event=None):
+        # TODO handle all rect updates on game level
+        self._selection_rect = self._camera.rect_to_map(
+            self._input_manager.mouse_drag_rect)
 
     def _draw(self):
         self._screen.fill((0, 0, 0))  # clear black
@@ -148,7 +114,7 @@ class Game:
         objs = self._objects.query(self._camera.view_rect)
         self._renderer.draw_objects(objs)
 
-        if self._dragging and self._selection_rect is not None:
+        if self._selecting:
             self._renderer.draw_rectangle(self._selection_rect, (255, 0, 0))
 
         pygame.display.flip()
@@ -156,13 +122,8 @@ class Game:
     def _draw_objects(self, surface, area):
         pass
 
-    def _handle_event(self, event):
-        if event.type == pygame.QUIT:
-            self.stop()
-
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:
-                self.stop()
+    def _handle_quit(self, event):
+        self.stop()
 
     def stop(self):
         self._run = False
