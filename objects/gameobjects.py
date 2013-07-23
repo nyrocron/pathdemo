@@ -7,7 +7,7 @@
 import util
 
 
-class GameObject:
+class GameObject(object):
     """Superclass of all game objects, has id and bbox (location) attribute"""
 
     _id_counter = 0

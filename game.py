@@ -17,7 +17,7 @@ from objects.management import ObjectManager
 from objects.gameobjects import Unit
 
 
-class Game:
+class Game(object):
     """Manages other game modules."""
 
     def __init__(self):

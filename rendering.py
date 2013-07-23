@@ -7,7 +7,7 @@
 from pygame import image, draw
 
 
-class Renderer:
+class Renderer(object):
     """Manages textures/assignments and provides methods for drawing objects
     and other graphics to pygame surfaces"""
 
@@ -67,7 +67,7 @@ class TextureError(Exception):
     pass
 
 
-class Texture:
+class Texture(object):
     """Represents a texture"""
     TEXTURE_DIR = 'content/textures/'
     _id_counter = 0

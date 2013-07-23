@@ -11,7 +11,7 @@ class MapError(Exception):
     pass
 
 
-class Map:
+class Map(object):
     """manages map background content and drawing"""
 
     MAP_DIR = 'content/maps/'

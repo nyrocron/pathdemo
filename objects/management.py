@@ -11,7 +11,7 @@ class TreeError(Exception):
     pass
 
 
-class QuadtreeNode:
+class QuadtreeNode(object):
     """Represents one noe of a Quadtree."""
 
     def __init__(self, parent, bbox):
@@ -170,7 +170,7 @@ class ObjectManagementError(Exception):
     pass
 
 
-class ObjectManager:
+class ObjectManager(object):
     """Manages game objects and provides methods for interacting with them"""
 
     def __init__(self, bbox):

@@ -9,7 +9,7 @@ from events import EventManager
 import util
 
 
-class Camera:
+class Camera(object):
     """Manages current view rectangle and provides methods to convert
     coordinates from/to screen/map coordinate systems."""
 

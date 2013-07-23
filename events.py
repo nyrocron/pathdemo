@@ -11,7 +11,7 @@ class EventError(Exception):
     pass
 
 
-class EventManager:
+class EventManager(object):
     _event_code_counter = pygame.NUMEVENTS
 
     def __init__(self):

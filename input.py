@@ -8,7 +8,7 @@ import pygame
 import util
 from events import EventManager
 
-class InputManager:
+class InputManager(object):
     """Manages keyboard and mouse input."""
     MOUSE_LEFT = 1
     MOUSE_MIDDLE = 2
