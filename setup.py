@@ -5,14 +5,23 @@
 """setup.py: create executable"""
 
 from distutils.core import setup
-import sys
+from glob import glob
 import py2exe
 
 
-sys.argv.append('py2exe')
-
 setup(
-    options= {'py2exe': {'bundle_files': 1, 'compressed': True}},
-    windows = [{'script': '__main__.py'}],
-    zipfile = None,
+    options= {'py2exe': {
+        'bundle_files': 1,
+        'compressed': True,
+        'optimize': 2,
+    }},
+    windows = [{
+        'script': '__main__.py',
+        'dest_base': 'pathdemo',
+    }],
+    data_files = [
+        ('content', ['content/texmap.png']),
+        ('content/maps', glob('content/maps/*.*')),
+        ('content/textures', glob('content/textures/*.*')),
+    ]
 )

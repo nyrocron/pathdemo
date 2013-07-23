@@ -39,6 +39,7 @@ class Map(object):
         if map_dir is None:
             map_dir = Map.DEFAULT_MAP_DIR
         fh = open(map_dir + map_name + '.map', 'r')
+
         for line in fh:
             items = [int(x) for x in line.split()]
             if self.tiles_x is None:
