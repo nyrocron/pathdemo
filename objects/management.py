@@ -45,6 +45,22 @@ class QuadtreeNode(object):
         self._data.add(obj)
         return True
 
+    def query_at(self, point):
+        result = set()
+        if not self._bb.collidepoint(point):
+            return result
+
+        if len(self._data) > 0:
+            for obj in self._data:
+                if obj.bbox.collidepoint(point):
+                    result.add(obj)
+
+        if self._has_children:
+            for child in self._childs:
+                result.update(child.query_at(point))
+
+        return result
+
     def query(self, area=None):
         """Query for objects in the tree under this node.
 
@@ -58,11 +74,9 @@ class QuadtreeNode(object):
                 if area is None or area.contains_rect(obj.bbox):
                     result.add(obj)
 
-        if not self._has_children:
-            return result
-
-        for child in self._childs:
-            result.update(child.query(area))
+        if self._has_children:
+            for child in self._childs:
+                result.update(child.query(area))
 
         return result
 
@@ -191,11 +205,11 @@ class ObjectManager(object):
         self._quadtree.insert(obj)
         return obj
 
-    def query(self, area=None):
+    def query(self, location=None, point=None):
         """Get all objects or all objects that intersect with area if set."""
-        if area is None:
-            area = self._bb
-        return self._quadtree.query_intersect(area)
+        if point is not None:
+            return self._quadtree.query_at(point)
+        return self._quadtree.query_intersect(location)
 
     def get_object_by_id(self, obj_id):
         """Get an object by its id."""
@@ -218,14 +232,19 @@ class ObjectManager(object):
         self._quadtree.move_to(obj, new_bbox)
         return True
 
-    def select(self, area):
-        """Select all objects in area."""
-        new_selection = self.query(area)
+    def select_area(self, area):
+        """Select all objects whose bbox collides with area."""
+        self.select_objects(self._quadtree.query_intersect(area))
 
-        for obj in self.selection.difference(new_selection):
+    def select_at(self, point):
+        """Select all objects whose bbox collides with point."""
+        self.select_objects(self._quadtree.query_at(point))
+
+    def select_objects(self, objs):
+        for obj in self.selection.difference(objs):
             obj.selected = False
 
-        self.selection = new_selection
+        self.selection = objs
         for obj in self.selection:
             obj.selected = True
 

@@ -40,8 +40,6 @@ class Game(object):
         self._renderer = Renderer(self._screen, self._camera)
         self._objects = ObjectManager(self._map.size)
 
-        self._load()
-
         self._event_mgr = EventManager()
         self._event_mgr.subscribe(pygame.QUIT, self._handle_quit)
         self._event_mgr.subscribe(self._camera.move_event, self._camera_moved)
@@ -56,12 +54,15 @@ class Game(object):
                                   self._select_update)
         self._event_mgr.subscribe(self._input_manager.mouse_drag_end,
                                   self._select_end)
+
+        self._event_mgr.subscribe(self._input_manager.lclick, self._leftclick)
         self._event_mgr.subscribe(self._input_manager.rclick, self._rightclick)
         self._event_mgr.subscribe(self._input_manager.rsclick,
                                   self._right_shiftclick)
 
     def run(self):
         """Run the main game loop."""
+        self._load()
         self._last_update = pygame.time.get_ticks()
 
         self._run = True
@@ -74,11 +75,11 @@ class Game(object):
     def _load(self):
         unit_tex = self._renderer.load_texture('cross.png')
 
-        char_pos = (1, 1)
-        char_rect = Rect(char_pos, self._renderer.texture_size(unit_tex))
-        player_character = self._objects.create(Unit, char_rect)
-
-        self._renderer.assign_texture(player_character, unit_tex)
+        for x in range(0, 48, 16):
+            unit_pos = (x, 16)
+            unit_rect = Rect(unit_pos, self._renderer.texture_size(unit_tex))
+            unit_id = self._objects.create(Unit, unit_rect)
+            self._renderer.assign_texture(unit_id, unit_tex)
 
     def _shutdown(self):
         pass
@@ -105,7 +106,7 @@ class Game(object):
 
     def _select_end(self, event):
         self._selecting = False
-        self._objects.select(self._selection_rect)
+        self._objects.select_area(self._selection_rect)
 
     def _select_update(self, event):
         self._last_mouse_pos = event.pos
@@ -117,6 +118,9 @@ class Game(object):
                                     min(self._select_start_pos[1], map_pos[1]),
                                     abs(map_pos[0] - self._select_start_pos[0]),
                                     abs(map_pos[1] - self._select_start_pos[1]))
+
+    def _leftclick(self, event):
+        self._objects.select_at(self._camera.point_to_map(event.pos))
 
     def _rightclick(self, event):
         self._objects.send_selected(self._camera.point_to_map(event.pos))
