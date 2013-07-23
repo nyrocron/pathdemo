@@ -76,6 +76,8 @@ class Unit(GameObject):
                 self._move_end_time = gametime + move_dist / self.speed
 
     def send_to(self, destination, add_waypoint=False):
+        # TODO: pathfinding
+
         center_dst = (destination[0] - self.bbox.width / 2,
                       destination[1] - self.bbox.height / 2)
         if add_waypoint:

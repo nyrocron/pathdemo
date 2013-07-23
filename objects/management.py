@@ -180,10 +180,6 @@ class Quadtree(QuadtreeNode):
         QuadtreeNode.__init__(self, None, bbox)
 
 
-class ObjectManagementError(Exception):
-    pass
-
-
 class ObjectManager(object):
     """Manages game objects and provides methods for interacting with them"""
 
@@ -241,6 +237,7 @@ class ObjectManager(object):
         self.select_objects(self._quadtree.query_at(point))
 
     def select_objects(self, objs):
+        """Select a set of objects."""
         for obj in self.selection.difference(objs):
             obj.selected = False
 
