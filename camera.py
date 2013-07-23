@@ -20,7 +20,7 @@ class Camera(object):
         self.move_event = EventManager.new_event_code()
 
         self._moving = False
-        self._move_vector = (0, 0)
+        self._move_vector = [0, 0]
 
         self._last_update = 0
 
@@ -30,16 +30,20 @@ class Camera(object):
         Execute movement and such"""
 
         if self._moving:
-            delta = util.vector_mul(self._move_vector, Camera.MOVE_SPEED)
-            self.view_rect.move(delta)
+            delta = util.vector_mul(util.vector_normalize(self._move_vector),
+                                    Camera.MOVE_SPEED * time_passed)
+            self.view_rect.move_ip(delta)
             self._post_move_event()
 
-    def set_move_dir(self, direction):
-        self._move_vector = util.vector_normalize(direction)
-        self._moving = False
+    def set_move(self, x=None, y=None):
+        if x is not None:
+            self._move_vector[0] = x
+        if y is not None:
+            self._move_vector[1] = y
+        self._moving = True
 
     def stop_moving(self):
-        self._move_vector = (0, 0)
+        self._move_vector = [0, 0]
         self._moving = False
 
     def move_to(self, x, y):

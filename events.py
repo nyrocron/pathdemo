@@ -12,6 +12,8 @@ class EventError(Exception):
 
 
 class EventManager(object):
+    """Manages event subscriptions."""
+
     _event_code_counter = pygame.NUMEVENTS
 
     def __init__(self):
@@ -19,6 +21,7 @@ class EventManager(object):
         self._user_subscriptions = {}
 
     def subscribe(self, event_type, callback):
+        """Subscribe to an event."""
         if event_type < pygame.NUMEVENTS:
             subscription_dict = self._subscriptions
         else:
@@ -29,6 +32,7 @@ class EventManager(object):
         subscription_dict[event_type].add(callback)
 
     def unsubscribe(self, event_type, callback):
+        """Remove an event subscription."""
         if event_type < pygame.NUMEVENTS:
             subscription_dict = self._subscriptions
         else:
@@ -37,13 +41,14 @@ class EventManager(object):
         subscription_dict[event_type].remove(callback)
 
     def update(self):
+        """Query events and call subscribers."""
         for event in pygame.event.get():
             if event.type == pygame.USEREVENT:
                 self._handle_user_event(event)
 
             try:
-                for f in self._subscriptions[event.type]:
-                    f(event)
+                for action in self._subscriptions[event.type]:
+                    action(event)
             except KeyError:
                 pass
 
@@ -62,7 +67,7 @@ class EventManager(object):
 
     def _handle_user_event(self, event):
         try:
-            for f in self._user_subscriptions[event.code]:
-                f(event)
+            for action in self._user_subscriptions[event.code]:
+                action(event)
         except KeyError:
             pass

@@ -8,7 +8,6 @@ from math import sqrt
 from pygame import Rect
 
 
-# TODO: check if needed
 class HashRect(Rect):
     def __hash__(self):
         return hash((self.x, self.y, self.width, self.height))

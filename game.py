@@ -2,8 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-"""game.py: contains the main game class that manages all other modules
-            of the game"""
+"""game.py: manages all other modules of the game"""
 
 import pygame
 from pygame import Rect
@@ -32,7 +31,7 @@ class Game(object):
 
         pygame.init()
 
-        screen_size = (1024, 768)
+        screen_width, screen_height = screen_size = (1024, 768)
         self._screen = pygame.display.set_mode(screen_size, pygame.DOUBLEBUF)
 
         self._map = Map('default')
@@ -44,20 +43,31 @@ class Game(object):
         self._event_mgr.subscribe(pygame.QUIT, self._handle_quit)
         self._event_mgr.subscribe(self._camera.move_event, self._camera_moved)
 
-        self._input_manager = InputManager(self._event_mgr)
-        self._input_manager.add_keybind(pygame.K_ESCAPE, self.stop)
-        self._input_manager.add_keybind(pygame.K_q, self.stop)
+        self._input = InputManager(self._event_mgr)
+        self._input.add_keybind(pygame.K_ESCAPE, self.stop)
+        self._input.add_keybind(pygame.K_q, self.stop)
 
-        self._event_mgr.subscribe(self._input_manager.mouse_drag_start,
+        self._input.add_hot_area((0, 0, screen_width, 2),
+                                 self._camera.set_move, {'y': -1})
+        self._input.add_hot_area((0, screen_height - 2, screen_width, 2),
+                                 self._camera.set_move, {'y': 1})
+        self._input.add_hot_area((0, 0, 2, screen_height - 2),
+                                 self._camera.set_move, {'x': -1})
+        self._input.add_hot_area((screen_width - 2, 0, 2, screen_height),
+                                 self._camera.set_move, {'x': 1})
+        self._input.add_hot_area((2, 2, screen_width - 4, screen_height - 4),
+                                 self._camera.stop_moving)
+
+        self._event_mgr.subscribe(self._input.mouse_drag_start,
                                   self._select_start)
-        self._event_mgr.subscribe(self._input_manager.mouse_drag_update,
+        self._event_mgr.subscribe(self._input.mouse_drag_update,
                                   self._select_update)
-        self._event_mgr.subscribe(self._input_manager.mouse_drag_end,
+        self._event_mgr.subscribe(self._input.mouse_drag_end,
                                   self._select_end)
 
-        self._event_mgr.subscribe(self._input_manager.lclick, self._leftclick)
-        self._event_mgr.subscribe(self._input_manager.rclick, self._rightclick)
-        self._event_mgr.subscribe(self._input_manager.rsclick,
+        self._event_mgr.subscribe(self._input.lclick, self._leftclick)
+        self._event_mgr.subscribe(self._input.rclick, self._rightclick)
+        self._event_mgr.subscribe(self._input.rsclick,
                                   self._right_shiftclick)
 
     def run(self):
