@@ -4,15 +4,15 @@
 
 """rendering.py: handles rendering of the game"""
 
-from pygame import image, draw
+from pygame import image, draw, display
 
 
 class Renderer(object):
     """Manages textures/assignments and provides methods for drawing objects
     and other graphics to pygame surfaces"""
 
-    def __init__(self, surface, camera):
-        self._surface = surface
+    def __init__(self, screen, camera):
+        self._surface = screen
         self._cam = camera
         self._textures = {}
         self._texture_assignments = {}
@@ -33,6 +33,12 @@ class Renderer(object):
     def texture_size(self, tex_id):
         """Get size of a texture by id."""
         return self._textures[tex_id].size
+
+    def frame_start(self):
+        self._surface.fill((0, 0, 0))  # clear black
+
+    def frame_end(self):
+        display.flip()
 
     def draw_map(self, map_):
         """Draw map at the appropriate location."""

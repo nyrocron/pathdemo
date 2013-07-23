@@ -19,6 +19,8 @@ from objects.gameobjects import Unit
 class Game(object):
     """Manages other game modules."""
 
+    MIN_CYCLE_TIME = 10
+
     def __init__(self):
         self._run = False
         self._last_update = 0
@@ -47,15 +49,15 @@ class Game(object):
         self._input.set_keybind(pygame.K_ESCAPE, self.stop)
         self._input.set_keybind(pygame.K_q, self.stop)
 
-        self._input.set_hot_area((0, 0, screen_width, 2),
+        self._input.set_hotarea((0, 0, screen_width, 2),
                                  self._camera.set_move, {'y': -1})
-        self._input.set_hot_area((0, screen_height - 2, screen_width, 2),
+        self._input.set_hotarea((0, screen_height - 2, screen_width, 2),
                                  self._camera.set_move, {'y': 1})
-        self._input.set_hot_area((0, 0, 2, screen_height - 2),
+        self._input.set_hotarea((0, 0, 2, screen_height - 2),
                                  self._camera.set_move, {'x': -1})
-        self._input.set_hot_area((screen_width - 2, 0, 2, screen_height),
+        self._input.set_hotarea((screen_width - 2, 0, 2, screen_height),
                                  self._camera.set_move, {'x': 1})
-        self._input.set_hot_area((2, 2, screen_width - 4, screen_height - 4),
+        self._input.set_hotarea((2, 2, screen_width - 4, screen_height - 4),
                                  self._camera.stop_moving)
 
         self._event_mgr.subscribe(self._input.mouse_drag_start,
@@ -77,7 +79,14 @@ class Game(object):
 
         self._run = True
         while self._run:
-            self._update(pygame.time.get_ticks())
+            gametime = pygame.time.get_ticks()
+            time_passed = gametime - self._last_update
+
+            if time_passed < Game.MIN_CYCLE_TIME:
+                pygame.time.wait(1)
+                continue
+
+            self._update(gametime, time_passed)
             self._draw()
 
         self._shutdown()
@@ -94,11 +103,7 @@ class Game(object):
     def _shutdown(self):
         pass
 
-    def _update(self, gametime):
-        time_passed = gametime - self._last_update
-        if time_passed < 10:
-            return
-
+    def _update(self, gametime, time_passed):
         self._event_mgr.update()
         self._objects.update(gametime)
         self._camera.update(time_passed)
@@ -139,7 +144,7 @@ class Game(object):
         self._objects.send_selected(self._camera.point_to_map(event.pos), True)
 
     def _draw(self):
-        self._screen.fill((0, 0, 0))  # clear black
+        self._renderer.frame_start()
 
         self._renderer.draw_map(self._map)
 
@@ -149,7 +154,7 @@ class Game(object):
         if self._selecting:
             self._renderer.draw_rectangle(self._selection_rect, (255, 0, 0))
 
-        pygame.display.flip()
+        self._renderer.frame_end()
 
     def _draw_objects(self, surface, area):
         pass

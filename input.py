@@ -30,6 +30,7 @@ class InputManager(object):
         self._keybinds_up = {}
 
         self._hot_area_ids = set()
+        self._active_hotareas = set()
         self._hot_area_counter = 0
         self._hot_area_rects = {}
         self._hot_area_actions = {}
@@ -52,21 +53,27 @@ class InputManager(object):
         self.mouse_dragging = False
         self._mouse_drag_start = None
 
-    def set_keybind(self, key, down=None, up=None):
-        if down is not None:
+    def set_keybind(self, key, down_action=None, up_action=None):
+        if down_action is not None:
             if not key in self._keybinds_down:
                 self._keybinds_down[key] = set()
-            self._keybinds_down[key].add(down)
+            self._keybinds_down[key].add(down_action)
 
-        if up is not None:
+        if up_action is not None:
             if not key in self._keybinds_up:
                 self._keybinds_up[key] = set()
-            self._keybinds_up[key].add(up)
+            self._keybinds_up[key].add(up_action)
 
     def unset_keybind(self, key, callback):
         self._keybinds_down[key].remove(callback)
 
-    def set_hot_area(self, area, callback, args=None):
+    def set_hotarea(self, area, callback, args=None):
+        """Set a hotarea and return its id.
+
+        When the mouse moves into the specified area, the specified callback
+        will be called. args can be a dict of arguments to be passed to
+        the callback"""
+
         hotarea_id = self._new_hotarea_id()
         rect = pygame.Rect(area)
 
@@ -75,7 +82,9 @@ class InputManager(object):
         self._hot_area_actions[hotarea_id] = (callback,
                                               {} if args is None else args)
 
-    def unset_hot_area(self, hotarea_id):
+    def unset_hotarea(self, hotarea_id):
+        """Unset hotarea with given id."""
+
         self._hot_area_ids.remove(hotarea_id)
         del self._hot_area_rects[hotarea_id]
         del self._hot_area_actions[hotarea_id]
@@ -117,10 +126,17 @@ class InputManager(object):
                 self.mouse_dragging = True
                 EventManager.post(self.mouse_drag_start, pos=pos)
 
+        current_active_hotareas = set()
         for hotarea_id in self._hot_area_ids:
             if self._hot_area_rects[hotarea_id].collidepoint(pos):
-                action, args = self._hot_area_actions[hotarea_id]
-                action(**args)
+                current_active_hotareas.add(hotarea_id)
+
+        entered_hotareas = current_active_hotareas - self._active_hotareas
+        #left_hotareas = self._active_hotareas - current_active_hotareas
+
+        for hotarea_id in entered_hotareas:
+            callback, args = self._hot_area_actions[hotarea_id]
+            callback(**args)
 
     def _mouse_down(self, event):
         if event.button == InputManager.MOUSE_LEFT:
