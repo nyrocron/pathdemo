@@ -44,8 +44,8 @@ class Game(object):
         self._event_mgr.subscribe(self._camera.move_event, self._camera_moved)
 
         self._input = InputManager(self._event_mgr)
-        self._input.add_keybind(pygame.K_ESCAPE, self.stop)
-        self._input.add_keybind(pygame.K_q, self.stop)
+        self._input.set_keybind(pygame.K_ESCAPE, self.stop)
+        self._input.set_keybind(pygame.K_q, self.stop)
 
         self._input.set_hot_area((0, 0, screen_width, 2),
                                  self._camera.set_move, {'y': -1})

@@ -52,7 +52,7 @@ class InputManager(object):
         self.mouse_dragging = False
         self._mouse_drag_start = None
 
-    def add_keybind(self, key, down=None, up=None):
+    def set_keybind(self, key, down=None, up=None):
         if down is not None:
             if not key in self._keybinds_down:
                 self._keybinds_down[key] = set()
@@ -63,7 +63,7 @@ class InputManager(object):
                 self._keybinds_up[key] = set()
             self._keybinds_up[key].add(up)
 
-    def remove_keybind(self, key, callback):
+    def unset_keybind(self, key, callback):
         self._keybinds_down[key].remove(callback)
 
     def set_hot_area(self, area, callback, args=None):
