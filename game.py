@@ -47,15 +47,15 @@ class Game(object):
         self._input.add_keybind(pygame.K_ESCAPE, self.stop)
         self._input.add_keybind(pygame.K_q, self.stop)
 
-        self._input.add_hot_area((0, 0, screen_width, 2),
+        self._input.set_hot_area((0, 0, screen_width, 2),
                                  self._camera.set_move, {'y': -1})
-        self._input.add_hot_area((0, screen_height - 2, screen_width, 2),
+        self._input.set_hot_area((0, screen_height - 2, screen_width, 2),
                                  self._camera.set_move, {'y': 1})
-        self._input.add_hot_area((0, 0, 2, screen_height - 2),
+        self._input.set_hot_area((0, 0, 2, screen_height - 2),
                                  self._camera.set_move, {'x': -1})
-        self._input.add_hot_area((screen_width - 2, 0, 2, screen_height),
+        self._input.set_hot_area((screen_width - 2, 0, 2, screen_height),
                                  self._camera.set_move, {'x': 1})
-        self._input.add_hot_area((2, 2, screen_width - 4, screen_height - 4),
+        self._input.set_hot_area((2, 2, screen_width - 4, screen_height - 4),
                                  self._camera.stop_moving)
 
         self._event_mgr.subscribe(self._input.mouse_drag_start,

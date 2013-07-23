@@ -28,7 +28,11 @@ class InputManager(object):
 
         self._keybinds_down = {}
         self._keybinds_up = {}
-        self._hot_areas = {}
+
+        self._hot_area_ids = set()
+        self._hot_area_counter = 0
+        self._hot_area_rects = {}
+        self._hot_area_actions = {}
 
         self._pushed_keys = set()
 
@@ -62,12 +66,23 @@ class InputManager(object):
     def remove_keybind(self, key, callback):
         self._keybinds_down[key].remove(callback)
 
-    def add_hot_area(self, area, action, args=None):
-        rect = util.HashRect(area)
-        if rect not in self._hot_areas:
-            self._hot_areas[rect] = []
-        self._hot_areas[rect].append((action,
-                                      dict() if args is None else args))
+    def set_hot_area(self, area, callback, args=None):
+        hotarea_id = self._new_hotarea_id()
+        rect = pygame.Rect(area)
+
+        self._hot_area_ids.add(hotarea_id)
+        self._hot_area_rects[hotarea_id] = rect
+        self._hot_area_actions[hotarea_id] = (callback,
+                                              {} if args is None else args)
+
+    def unset_hot_area(self, hotarea_id):
+        self._hot_area_ids.remove(hotarea_id)
+        del self._hot_area_rects[hotarea_id]
+        del self._hot_area_actions[hotarea_id]
+
+    def _new_hotarea_id(self):
+        self._hot_area_counter += 1
+        return self._hot_area_counter
 
     def _key_down(self, event):
         self._pushed_keys.add(event.key)
@@ -102,11 +117,10 @@ class InputManager(object):
                 self.mouse_dragging = True
                 EventManager.post(self.mouse_drag_start, pos=pos)
 
-        for area_binding in self._hot_areas.items():
-            area, actions = area_binding
-            if area.collidepoint(pos):
-                for action in actions:
-                    action[0](**action[1])
+        for hotarea_id in self._hot_area_ids:
+            if self._hot_area_rects[hotarea_id].collidepoint(pos):
+                action, args = self._hot_area_actions[hotarea_id]
+                action(**args)
 
     def _mouse_down(self, event):
         if event.button == InputManager.MOUSE_LEFT:
