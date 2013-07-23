@@ -72,7 +72,7 @@ class Game(object):
         self._shutdown()
 
     def _load(self):
-        unit_tex = self._renderer.load_texture('character.png')
+        unit_tex = self._renderer.load_texture('cross.png')
 
         char_pos = (1, 1)
         char_rect = Rect(char_pos, self._renderer.texture_size(unit_tex))
