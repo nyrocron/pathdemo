@@ -14,27 +14,31 @@ class MapError(Exception):
 class Map(object):
     """manages map background content and drawing"""
 
-    MAP_DIR = 'content/maps/'
+    DEFAULT_MAP_DIR = 'content/maps/'
     _tile_size = 16
 
     def __init__(self, map_name=None):
+        self.size = None
         self.tiles_x = 0
         self.tiles_y = 0
-        self.size = None
-        self._texmap = image.load('content/texmap.png')
-        self._texmap_tiles_x = 16
-        self._texmap_tiles_y = 16
         self._tiles = None
+
+        self._texmap = image.load('content/texmap.png')
+        self._texmap_tiles_x = self._texmap.get_width() // Map._tile_size
+        self._texmap_tiles_y = self._texmap.get_height() // Map._tile_size
+
         if map_name is not None:
             self.load(map_name)
 
-    def load(self, map_name):
+    def load(self, map_name, map_dir=None):
         """Load map with name map_name."""
         self.tiles_x = None
         self.tiles_y = None
         self._tiles = []
 
-        fh = open(Map.MAP_DIR + map_name + '.map', 'r')
+        if map_dir is None:
+            map_dir = Map.DEFAULT_MAP_DIR
+        fh = open(map_dir + map_name + '.map', 'r')
         for line in fh:
             items = [int(x) for x in line.split()]
             if self.tiles_x is None:
