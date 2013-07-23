@@ -19,9 +19,9 @@ from objects.gameobjects import Unit
 class Game(object):
     """Manages other game modules."""
 
-    MIN_CYCLE_TIME = 10
+    def __init__(self, min_cycle_time=10):
+        self.min_cycle_time = min_cycle_time
 
-    def __init__(self):
         self._run = False
         self._last_update = 0
 
@@ -50,15 +50,15 @@ class Game(object):
         self._input.set_keybind(pygame.K_q, self.stop)
 
         self._input.set_hotarea((0, 0, screen_width, 2),
-                                 self._camera.set_move, {'y': -1})
+                                self._camera.set_move, {'y': -1})
         self._input.set_hotarea((0, screen_height - 2, screen_width, 2),
-                                 self._camera.set_move, {'y': 1})
+                                self._camera.set_move, {'y': 1})
         self._input.set_hotarea((0, 0, 2, screen_height - 2),
-                                 self._camera.set_move, {'x': -1})
+                                self._camera.set_move, {'x': -1})
         self._input.set_hotarea((screen_width - 2, 0, 2, screen_height),
-                                 self._camera.set_move, {'x': 1})
+                                self._camera.set_move, {'x': 1})
         self._input.set_hotarea((2, 2, screen_width - 4, screen_height - 4),
-                                 self._camera.stop_moving)
+                                self._camera.stop_moving)
 
         self._event_mgr.subscribe(self._input.mouse_drag_start,
                                   self._select_start)
@@ -82,8 +82,8 @@ class Game(object):
             gametime = pygame.time.get_ticks()
             time_passed = gametime - self._last_update
 
-            if time_passed < Game.MIN_CYCLE_TIME:
-                pygame.time.wait(1)
+            if time_passed < self.min_cycle_time:
+                pygame.time.wait(1)  # give other threads some cpu time
                 continue
 
             self._update(gametime, time_passed)
