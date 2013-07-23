@@ -77,6 +77,9 @@ class InputManager(object):
         if event.button == InputManager.MOUSE_LEFT:
             self._mouse_left_is_down = True
             self._mouse_left_down_pos = event.pos
+            EventManager.post(self.mouse_lclick, pos=event.pos)
+        elif event.button == InputManager.MOUSE_RIGHT:
+            EventManager.post(self.mouse_rclick, pos=event.pos)
 
     def _mouse_up(self, event):
         if event.button == InputManager.MOUSE_LEFT:

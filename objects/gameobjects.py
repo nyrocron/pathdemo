@@ -81,6 +81,7 @@ class Unit(GameObject):
         if add_waypoint:
             self._waypoints.append(center_dst)
         else:
+            self._is_moving = False
             self._waypoints = [center_dst]
 
     def _set_dest(self, destination):

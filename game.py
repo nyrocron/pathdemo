@@ -56,6 +56,8 @@ class Game(object):
                                   self._select_update)
         self._event_mgr.subscribe(self._input_manager.mouse_drag_end,
                                   self._select_end)
+        self._event_mgr.subscribe(self._input_manager.mouse_rclick,
+                                  self._rightclick)
 
     def run(self):
         """Run the main game loop."""
@@ -114,6 +116,10 @@ class Game(object):
                                     min(self._select_start_pos[1], map_pos[1]),
                                     abs(map_pos[0] - self._select_start_pos[0]),
                                     abs(map_pos[1] - self._select_start_pos[1]))
+
+    def _rightclick(self, event):
+        map_pos = self._camera.point_to_map(event.pos)
+        self._objects.send_selected(map_pos)
 
     def _draw(self):
         self._screen.fill((0, 0, 0))  # clear black
