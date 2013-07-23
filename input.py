@@ -16,6 +16,8 @@ class InputManager(object):
 
     MOUSE_DRAG_THRESHOLD = 3
 
+    SHIFTKEYS = {pygame.K_LSHIFT, pygame.K_RSHIFT}
+
     def __init__(self, event_manager):
         event_manager.subscribe(pygame.KEYDOWN, self._key_down)
         event_manager.subscribe(pygame.KEYUP, self._key_up)
@@ -27,12 +29,17 @@ class InputManager(object):
         self._keybinds = {}
         self._hot_areas = {}
 
+        self._pushed_keys = set()
+
         self._mouse_left_is_down = False
         self._mouse_left_down_pos = None
 
         # events
-        self.mouse_lclick = EventManager.new_event_code()
-        self.mouse_rclick = EventManager.new_event_code()
+        self.lclick = EventManager.new_event_code()
+        self.lsclick = EventManager.new_event_code()
+        self.rclick = EventManager.new_event_code()
+        self.rsclick = EventManager.new_event_code()
+
         self.mouse_drag_start = EventManager.new_event_code()
         self.mouse_drag_end = EventManager.new_event_code()
         self.mouse_drag_update = EventManager.new_event_code()
@@ -52,6 +59,7 @@ class InputManager(object):
         pass  # TODO: implement hot area binding
 
     def _key_down(self, event):
+        self._pushed_keys.add(event.key)
         try:
             for f in self._keybinds[event.key]:
                 f()
@@ -59,7 +67,12 @@ class InputManager(object):
             pass
 
     def _key_up(self, event):
+        self._pushed_keys.remove(event.key)
         pass
+
+    @property
+    def _shift_pushed(self):
+        return not self._pushed_keys.isdisjoint(InputManager.SHIFTKEYS)
 
     def _mouse_moved(self, event):
         if self._mouse_left_is_down:
@@ -77,9 +90,13 @@ class InputManager(object):
         if event.button == InputManager.MOUSE_LEFT:
             self._mouse_left_is_down = True
             self._mouse_left_down_pos = event.pos
-            EventManager.post(self.mouse_lclick, pos=event.pos)
+
+            click_event = self.lsclick if self._shift_pushed else self.lclick
+            EventManager.post(click_event, pos=event.pos)
+
         elif event.button == InputManager.MOUSE_RIGHT:
-            EventManager.post(self.mouse_rclick, pos=event.pos)
+            click_event = self.rsclick if self._shift_pushed else self.rclick
+            EventManager.post(click_event, pos=event.pos)
 
     def _mouse_up(self, event):
         if event.button == InputManager.MOUSE_LEFT:
@@ -104,38 +121,3 @@ class InputManager(object):
     #    if pressed_keys[pygame.K_d]:
     #        self._camera.move(delta, 0)
     #    self._camera_moved()
-    #
-    #    # mouse
-    #    x, y = mouse.get_pos()
-    #    pressed_buttons = mouse.get_pressed()
-    #
-    #    if pressed_buttons[0]:
-    #        if not self._dragging:
-    #            self._mouse_drag_start = self._camera.point_to_map(x, y)
-    #            self._selection_rect = Rect(self._mouse_drag_start, (0, 0))
-    #            self._dragging = True
-    #    else:
-    #        if self._dragging:
-    #            self._mouse_dragged()
-    #            self._dragging = False
-    #
-    #    if pressed_buttons[2]:
-    #        if not self._mouse_right_down:
-    #            self._mouse_right_down = True
-    #    else:
-    #        if self._mouse_right_down:
-    #            if pressed_keys[pygame.K_LSHIFT]:
-    #                self._mouse_right_shiftclicked(x, y)
-    #            else:
-    #                self._mouse_right_clicked(x, y)
-    #            self._mouse_right_down = False
-    #
-    #    if self._mouse_last_pos is None or self._mouse_last_pos != (x, y):
-    #        self._mouse_moved(x, y)
-    #    self._mouse_last_pos = (x, y)
-    #
-    #def _mouse_right_clicked(self, x, y):
-    #    self._objects.send_selected(self._camera.point_to_map(x, y))
-    #
-    #def _mouse_right_shiftclicked(self, x, y):
-    #    self._objects.send_selected(self._camera.point_to_map(x, y), True)
