@@ -36,3 +36,7 @@ def vector_mul(v, n):
 
 def vector_len(v):
     return sqrt(v[0] ** 2 + v[1] ** 2)
+
+
+def is_power2(n):
+    return ((n & (n - 1)) == 0) and n > 0

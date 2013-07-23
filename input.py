@@ -8,6 +8,7 @@ import pygame
 import util
 from events import EventManager
 
+
 class InputManager(object):
     """Manages keyboard and mouse input."""
     MOUSE_LEFT = 1
@@ -120,7 +121,7 @@ class InputManager(object):
         if self._mouse_left_is_down:
             if self.mouse_dragging:
                 EventManager.post(self.mouse_drag_update, pos=pos)
-            elif InputManager.MOUSE_DRAG_THRESHOLD <\
+            elif InputManager.MOUSE_DRAG_THRESHOLD < \
                     util.point_dist(self._mouse_left_down_pos, pos):
                 self._mouse_drag_start = pos
                 self.mouse_dragging = True
@@ -158,18 +159,18 @@ class InputManager(object):
                 self.mouse_dragging = False
                 EventManager.post(self.mouse_drag_end)
 
-    #def _handle_input(self, time_passed):
-    #    pressed_keys = pygame.key.get_pressed()
-    #
-    #    delta = 0.25 * time_passed
-    #
-    #    # camera movement
-    #    if pressed_keys[pygame.K_w]:
-    #        self._camera.move(0, -delta)
-    #    if pressed_keys[pygame.K_s]:
-    #        self._camera.move(0, delta)
-    #    if pressed_keys[pygame.K_a]:
-    #        self._camera.move(-delta, 0)
-    #    if pressed_keys[pygame.K_d]:
-    #        self._camera.move(delta, 0)
-    #    self._camera_moved()
+                #def _handle_input(self, time_passed):
+                #    pressed_keys = pygame.key.get_pressed()
+                #
+                #    delta = 0.25 * time_passed
+                #
+                #    # camera movement
+                #    if pressed_keys[pygame.K_w]:
+                #        self._camera.move(0, -delta)
+                #    if pressed_keys[pygame.K_s]:
+                #        self._camera.move(0, delta)
+                #    if pressed_keys[pygame.K_a]:
+                #        self._camera.move(-delta, 0)
+                #    if pressed_keys[pygame.K_d]:
+                #        self._camera.move(delta, 0)
+                #    self._camera_moved()

@@ -5,6 +5,7 @@
 """management.py: game object management"""
 
 from pygame import Rect
+import util
 
 
 class TreeError(Exception):
@@ -16,8 +17,8 @@ class QuadtreeNode(object):
 
     def __init__(self, parent, bbox):
         """Create new Quadtree node."""
-        if (not self._is_power2(bbox.width) or not
-                self._is_power2(bbox.height)):
+        if (not util.is_power2(bbox.width) or not
+                util.is_power2(bbox.height)):
             raise TreeError("node dimensions have to be power of two,"
                             " bbox given was " + str(bbox))
 
@@ -125,6 +126,7 @@ class QuadtreeNode(object):
         for child in self._childs:
             child.print_tree(indent + 2)
 
+    #noinspection PyProtectedMember
     def _insert_up(self, obj):
         if self._bb.contains(obj.bbox):
             self.insert(obj)
@@ -155,6 +157,7 @@ class QuadtreeNode(object):
     def _has_data(self):
         return len(self._data) > 0
 
+    #noinspection PyProtectedMember
     def _purge_empty_nodes(self):
         if self._has_data():
             return
@@ -168,9 +171,6 @@ class QuadtreeNode(object):
         self._has_children = False
         if self.parent is not None:
             self.parent._purge_empty_nodes()
-
-    def _is_power2(self, n):
-        return ((n & (n - 1)) == 0) and n > 0
 
 
 class Quadtree(QuadtreeNode):

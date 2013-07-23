@@ -110,6 +110,7 @@ class Game(object):
 
         self._last_update = gametime
 
+    #noinspection PyUnusedLocal
     def _camera_moved(self, event):
         if self._selecting:
             self._update_selection_rectangle(self._last_mouse_pos)
@@ -119,6 +120,7 @@ class Game(object):
         self._select_start_pos = event.pos
         self._update_selection_rectangle(event.pos)
 
+    #noinspection PyUnusedLocal
     def _select_end(self, event):
         self._selecting = False
         self._objects.select_area(self._selection_rect)
@@ -159,6 +161,7 @@ class Game(object):
     def _draw_objects(self, surface, area):
         pass
 
+    #noinspection PyUnusedLocal
     def _handle_quit(self, event):
         self.stop()
 
