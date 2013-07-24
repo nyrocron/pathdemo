@@ -117,7 +117,7 @@ class Game(object):
 
     def _select_start(self, event):
         self._selecting = True
-        self._select_start_pos = event.pos
+        self._select_start_pos = self._camera.point_to_map(event.pos)
         self._update_selection_rectangle(event.pos)
 
     #noinspection PyUnusedLocal
