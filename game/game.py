@@ -12,8 +12,8 @@ from events import EventManager
 from input import InputManager
 from rendering import Renderer
 from map import Map
-from objects.management import ObjectManager
-from objects.gameobjects import Unit
+from gameobjects.management import ObjectManager
+from gameobjects.gameobjects import Unit
 
 
 class Game(object):

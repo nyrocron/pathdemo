@@ -5,7 +5,7 @@
 """management.py: game object management"""
 
 from pygame import Rect
-import util
+from game import util
 
 
 class TreeError(Exception):

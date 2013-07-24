@@ -5,8 +5,8 @@
 """camera.py: camera management"""
 
 from pygame import Rect
-from events import EventManager
 import util
+from events import EventManager
 
 
 class Camera(object):

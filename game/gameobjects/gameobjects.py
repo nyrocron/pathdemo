@@ -3,8 +3,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 """gameobjects.py: game objects"""
-
-import util
+from game import util
 
 
 class GameObject(object):
